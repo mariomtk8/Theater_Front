@@ -5,6 +5,7 @@ import Informacion from "../views/Informacion.vue"
 import Contacto from "../views/Contacto.vue"
 import Programacion from "../views/Programacion.vue"
 import InfoFuncion from "../views/InfoFuncion.vue"
+import Compra from "../views/Compra.vue"
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
@@ -38,7 +39,13 @@ const router = createRouter({
       name: 'InfoFuncion',
       component: InfoFuncion,
       props: true
-  }
+  },
+  {
+    path: '/Compra/:Id',
+    name: 'Compra',
+    component: Compra,
+    props: true
+}
     ]
   });
 
