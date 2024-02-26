@@ -21,7 +21,7 @@
             </div>
             <article>
                 <div class="button-bought" id="boton-comprar">
-                    <RouterLink :to="{ path: '/Compra1/' + funcions?.id }" class='show-poster__button'>Comprar Entradas
+                    <RouterLink :to="{ path: '/HorariosCompra/' + funcions?.id }" class='show-poster__button'>Comprar Entradas
                     </RouterLink>
                 </div>
             </article>

@@ -5,7 +5,8 @@ import Informacion from "../views/Informacion.vue"
 import Contacto from "../views/Contacto.vue"
 import Programacion from "../views/Programacion.vue"
 import InfoFuncion from "../views/InfoFuncion.vue"
-import Compra from "../views/Compra.vue"
+import HorariosCompra from "../views/HorariosCompra.vue"
+import CompraEntradas from "../views/CompraEntradas.vue"
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
@@ -41,9 +42,15 @@ const router = createRouter({
       props: true
   },
   {
-    path: '/Compra/:Id',
-    name: 'Compra',
-    component: Compra,
+    path: '/HorariosCompra/:Id',
+    name: 'HorariosCompra',
+    component: HorariosCompra,
+    props: true
+},
+  {
+    path: '/CompraEntradas/:Id',
+    name: 'CompraEntradas',
+    component: CompraEntradas,
     props: true
 }
     ]

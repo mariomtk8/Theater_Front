@@ -35,6 +35,9 @@ npm run dev
 
 ### Type-Check, Compile and Minify for Production
 
+npm install vue-router@4
+
+
 ```sh
 npm run build
 ```
