@@ -94,40 +94,6 @@ console.log(idfuncion);
     overflow: auto;
   }
   
-  /* Estilos del encabezado */
-  .header {
-    display: flex;
-    align-items: center;
-    background-color: #ffffff;
-    color: #000000;
-    height: 23vh;
-    max-width: 1000px;
-    margin: auto;
-  }
-  
-  .header__logo {
-    flex: 1;
-    text-align: center;
-  }
-  
-  .logo__image {
-    max-width: 140px;
-    height: auto;
-  }
-  
-  .header__nav {
-    flex: 2.2;
-    display: flex;
-    text-align: left;
-    justify-content: left;
-    gap: 20px;
-  }
-  
-  .nav__link {
-    color: #000000;
-    text-decoration: none;
-  }
-  
   /* Estilos del bloque principal */
   .main-block {
     display: flex;
@@ -145,15 +111,14 @@ console.log(idfuncion);
     margin-left: 20vh;
   }
   
-  .show-poster__button {
-    background-color: #1E3367 !important;
-    color: #e9e3e3 !important;
-    border: none !important;
-    /* padding: 10px 20px; */
-    font-size: 16px !important;
-    margin-left: 10px !important;
+  /* .show-poster__button {
+    background-color: #1E3367 ;
+    color: #e9e3e3 ;
+    border: none ;
+    font-size: 16px ;
+    margin-left: 10px ;
   }
-  
+   */
   /* Estilos del marco de la función */
   .frame-function {
     display: flex;
@@ -181,6 +146,11 @@ console.log(idfuncion);
   .frame-function__title h2 {
     font-size: 30px;
     color: white;
+  }
+
+  .information-title{
+    margin: 5vh;
+    font-size: 30px;
   }
   
   /* Estilos del contenedor */

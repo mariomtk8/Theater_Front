@@ -13,9 +13,14 @@
           </div>
         </section>
       </article>
-      <div id="cinema-seats" class="cinema-seats">
-        <!-- Esta sección puede ser dinámica basada en los datos de la obra o estática para el demo -->
-      </div>
+      <div class="asientos-container">
+      <svg v-if="asientos.length > 0" style="width: 500px; height: 500px;">
+        <rect v-for="(asiento, index) in asientos" :key="asiento.id"
+              :x="asiento.x" :y="asiento.y" width="20" height="20"
+              :fill="asiento.ocupado ? 'red' : 'green'"
+              style="cursor: pointer;" />
+      </svg>
+    </div>
       <p id="total-price">Precio Total: 0 €</p>
       <button id="buy-button" @click="postEntradas">Comprar</button>
     </main>
@@ -73,13 +78,32 @@
   
       if (!response.ok) throw new Error('Error al realizar la compra');
       const responseData = await response.json();
-      alert('Compra realizada con éxito');
+      alert('Compra realizada');
   
     } catch (error) {
       console.error('Error al realizar la compra:', error);
-      alert('Error al realizar la compra');
+      alert('Error en la compra');
     }
   };
+  const asientos = ref([]);
+
+  onMounted(async () => {
+    const route = useRoute();
+    const idFuncion = route.params.Id as string;
+    try {
+        // Petición para los detalles de la función
+        const responseFuncion = await fetch('/api/funciones/' + idFuncion);
+        if (!responseFuncion.ok) throw new Error('Error al obtener los datos de la obra');
+        funcion.value = await responseFuncion.json();
+
+        // Petición GET para obtener los asientos
+        const responseAsientos = await fetch(`/api/asientos/${idFuncion}`);
+        if (!responseAsientos.ok) throw new Error('Error al obtener los asientos');
+        asientos.value = await responseAsientos.json();
+    } catch (error) {
+        console.error('Error:', error);
+    }
+});
   </script>
     
   <style>
@@ -185,7 +209,7 @@
   }
   
   /* Estilos para el contenedor de los asientos */
-  #cinema-seats {
+  #asientos {
     text-align: center;
     margin: 20px auto;
   }
@@ -226,12 +250,12 @@
   }
   
   
-  /* Añadir esta regla para los asientos comprados */
+  
   .seat.comprado {
     background-color: #ff0000;
-    /* Rojo para indicar que el asiento está comprado */
+    
     cursor: not-allowed;
-    /* Cambia el cursor para indicar que no se puede seleccionar */
+   
   }
   
   

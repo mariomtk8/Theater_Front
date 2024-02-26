@@ -23,7 +23,7 @@
 
   
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, reactive } from 'vue';
 
 interface Funcion {
   nombre?: string;
@@ -31,7 +31,7 @@ interface Funcion {
   id?: string;
 }
 
-const funcions = ref<Funcion[]>([]);
+let funcions = reactive(new Array<Funcion>());
 
 const fetchFunciones = async () => {
   try {
@@ -39,9 +39,9 @@ const fetchFunciones = async () => {
     if (!response.ok) {
       throw new Error('Error al obtener los datos de las funciones');
     }
-    const data = await response.json();
-    funcions.value = data;
-    console.log("Funciones cargadas:", funcions.value); // Depuración adicional
+    const data = ((await response.json()).$values) as Array<Funcion>;
+    funcions.push(...data);
+    console.log("Funciones cargadas:", funcions); 
   } catch (error) {
     console.error('Error al obtener los datos de las funciones:', error);
   }
@@ -144,22 +144,24 @@ body {
 
 .poster-container {
     display: flex;
-    justify-content: space-evenly;
+    flex-wrap: wrap;
+    justify-content: center; 
     background-color: white;
     padding: 20px;
-    margin: 20px;
+    margin: 0 auto; 
+    gap: 20px; 
+    max-width: 1200px;
 }
 
 .show-poster {
     text-align: center;
     background-color: #1E3367;
     padding: 20px;
-    width: 264px;
-    height: 400px;
-
+    width: 264px; 
+    height: 420px; 
     border: #ffffff 2px solid;
     box-sizing: border-box;
-
+    margin-bottom: 20px; 
 }
 
 .show-poster__image {
@@ -178,21 +180,24 @@ body {
 }
 
 .show-poster__details {
-    color: white;
-    font-size: smaller;
-    margin-top: 4vh;
-}
-
-.show-poster__title {
-    
-    margin-top: 3vh;
+    color: white; 
+    margin-bottom: 3vh;
+    padding: 20px;  
+    border-top: 2px solid white;
 }
 
 .show-poster__button {
-    padding: 10px 20px;
-    background-color: #ffffff;
-    color: #1E3367;
+    padding: 12px 24px; /* Aumenta el relleno para un botón más grande */
+    background-color: #ffffff; /* Color de fondo del botón */
+    color: #1E3367; /* Color del texto del botón */
     cursor: pointer;
+    border: none; /* Elimina el borde del botón */
+    border-radius: 5px; /* Añade bordes redondeados */
+    transition: background-color 0.3s, color 0.3s;
+}
+.show-poster__button:hover {
+    background-color: #1E3367; 
+    color: #ffffff;
 }
 
 
