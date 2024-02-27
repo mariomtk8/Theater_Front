@@ -14,12 +14,14 @@
       </section>
     </article>
     <div class="asientos-container">
-    <svg v-if="asientos && asientos.length > 0" style="width: 500px; height: 500px;">
-      <rect v-for="(asiento, index) in asientos" :key="asiento.idAsiento"
-            :x="asiento.x" :y="asiento.y" width="20" height="20"
-            style="cursor: pointer;" />
-    </svg>
+      <svg v-if="asientos && asientos.length > 0" style=" height: 200px;">
+        <rect v-for="(asiento, index) in asientos" :key="asiento.idAsiento"
+              :x="asiento.x" :y="asiento.y" width="40" height="40"
+              style="fill: #ccc; cursor: pointer; stroke: #333; stroke-width: 1px;"
+              @click="postEntradas"/>
+      </svg>
     </div>
+
     <p id="total-price">Precio Total: 0 €</p>
     <button id="buy-button" @click="postEntradas">Comprar</button>
   </main>
@@ -36,6 +38,7 @@ interface Funcion {
   actoresArray: string[];
   fechasArray: string[];
   id: string;
+  idSesion: string;
 }
 interface Asiento {
   idAsiento: string;
@@ -44,40 +47,59 @@ interface Asiento {
   x: number;
   y: number;
 }
+const seatsPerRow = 5;
+const seatsPerColumn = 4;
+const seatWidth = 40; // ancho del asiento
+const seatHeight = 40; // alto del asiento
+const gap = 6; // espacio entre asientos
 
 const funcion = ref<Funcion | null>(null);
   const asientos = ref<Asiento[]>([]);
 
 const route = useRoute();
 const idFuncion = route.params.Id as string;
+const idSesion = route.query.IdSesion as string;
 
 onMounted(async () => {
   try {
     const [responseFuncion, responseAsientos] = await Promise.all([
       fetch('/api/funciones/' + idFuncion),
-      fetch(`/api/asientos/GetAll`) // Asegúrate de que la ruta coincide exactamente con tu API
+      fetch(`/api/asientos/`)
     ]);
 
     if (!responseFuncion.ok) throw new Error('Error al obtener los datos de la función');
     funcion.value = await responseFuncion.json();
 
     if (!responseAsientos.ok) throw new Error('Error al obtener los asientos');
-    asientos.value = await responseAsientos.json(); // Esto debe devolver un array
+    const rawSeats: Asiento[] = await responseAsientos.json();
+    
+    // Asumimos que rawSeats podría necesitar la generación de posiciones
+    asientos.value = rawSeats.map((asiento, index) => {
+      const row = Math.floor(index / seatsPerRow);
+      const col = index % seatsPerRow;
+      asiento.x = col * (seatWidth + gap);
+      asiento.y = row * (seatHeight + gap);
+      return asiento;
+    });
   } catch (error) {
     console.error('Error:', error);
   }
 });
 const postEntradas = async () => {
-    if (!funcion.value) {
-      alert('No se ha seleccionado ninguna obra.');
-      return;
-    }
-    const route = useRoute();
-    const fecha = route.params.idFecha as string;
-    const url = `api/Asientos/${fecha}`;
-    const data = {
-      asientos: [],
-    };
+  if (!funcion.value) {
+    alert('No se ha seleccionado ninguna obra.');
+    return;
+  }
+  
+  const url = `api/Funciones/${idFuncion}/Sesion/${idSesion}/AñadirAsientos`;
+  // Filtramos solo los asientos que no están libres (suponiendo que isFree indica disponibilidad)
+  const asientosSeleccionados = asientos.value.filter(asiento => !asiento.isFree);
+  const data = {
+  asientos: asientosSeleccionados.map(asiento => ({
+    idAsiento: asiento.idAsiento,
+    isFree: !asiento.isFree  // Asumiendo que quieres cambiar el estado a no libre
+  }))
+};
   
     try {
       const response = await fetch(url, {
@@ -88,13 +110,13 @@ const postEntradas = async () => {
         body: JSON.stringify(data),
       });
   
-      if (!response.ok) throw new Error('Error al realizar la compra');
+      if (!response.ok) throw new Error('Error al actualizar el asiento');
       const responseData = await response.json();
       alert('Compra realizada');
   
     } catch (error) {
-      console.error('Error al realizar la compra:', error);
-      alert('Error en la compra');
+      console.error('Error:', error);
+      alert('Error al actualizar el asiento');
     }
   };
   </script>
@@ -111,6 +133,12 @@ const postEntradas = async () => {
     padding: 0;
     text-decoration: none;
   }
+  .asientos-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 35vh; /* O la altura deseada */
+}
   
   
   .article-block {

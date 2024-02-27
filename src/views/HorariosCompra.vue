@@ -17,17 +17,21 @@
       <div id="container" class="information-container">
         <h2 class="information-title">Información de Fechas y Horas</h2>
         <div class="container-frame">
-          <ul class="horarios-txt__list">
-            <li v-for="(fecha, index) in funcions?.fechasArray" :key="fecha" class='horarios-txt__item'>
-              {{ fecha }}
-              <RouterLink :to="{
-                path: '/CompraEntradas/' + funcions?.id,
-                query: { idFecha: funcions?.nombre + (index + 1).toString() }
-              }" class="show-poster__button">Comprar</RouterLink>
-            </li>
-          </ul>
-  
-        </div>
+  <ul class="horarios-txt__list">
+    <li v-if="funcions?.fechasArray && funcions.fechasArray.length >= 1" class="horarios-txt__item">
+      {{ funcions.fechasArray[0] }}
+      <router-link :to="{ path: '/CompraEntradas/' + funcions.id + '/Sesion/' + funcions.idSesion }" class="show-poster__button">Comprar</router-link>
+    </li>
+    <li v-if="funcions?.fechasArray && funcions.fechasArray.length >= 2" class="horarios-txt__item">
+      {{ funcions.fechasArray[1] }}
+      <router-link :to="{ path: '/CompraEntradas/' + funcions.id + '/Sesion/' + funcions.idSesion }" class="show-poster__button">Comprar</router-link>
+    </li>
+    <li v-if="funcions?.fechasArray && funcions.fechasArray.length >= 3" class="horarios-txt__item">
+      {{ funcions.fechasArray[2] }}
+      <router-link :to="{ path: '/CompraEntradas/' + funcions.id + '/Sesion/' + funcions.idSesion  }" class="show-poster__button">Comprar</router-link>
+    </li>
+  </ul>
+</div>
       </div>
     </main>
   </template>
@@ -43,6 +47,7 @@
     actoresArray: string[];
     fechasArray: string[];
     id: string;
+    idSesion: string;
 }
   
   const funcions = ref<Funcion | null>(null);

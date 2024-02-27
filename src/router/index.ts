@@ -48,7 +48,7 @@ const router = createRouter({
     props: true
 },
   {
-    path: '/CompraEntradas/:Id',
+    path: '/CompraEntradas/:Id/Sesion/:IdSesion',
     name: 'CompraEntradas',
     component: CompraEntradas,
     props: true
