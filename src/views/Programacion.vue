@@ -31,7 +31,7 @@ interface Funcion {
   id?: string;
 }
 
-let funcions = reactive(new Array<Funcion>());
+const funcions = ref<Funcion[]>([]);
 
 const fetchFunciones = async () => {
   try {
@@ -39,9 +39,9 @@ const fetchFunciones = async () => {
     if (!response.ok) {
       throw new Error('Error al obtener los datos de las funciones');
     }
-    const data = ((await response.json()).$values) as Array<Funcion>;
-    funcions.push(...data);
-    console.log("Funciones cargadas:", funcions); 
+    const data = await response.json();
+    funcions.value = data;
+    console.log("Funciones cargadas:", funcions.value); // Depuración adicional
   } catch (error) {
     console.error('Error al obtener los datos de las funciones:', error);
   }

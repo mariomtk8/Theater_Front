@@ -1,61 +1,73 @@
 <template>
-    <main>
-      <article class="article-block">
-        <div class="main-block">
-          <h1>Compra de entradas</h1>
+  <main>
+    <article class="article-block">
+      <div class="main-block">
+        <h1>Compra de entradas</h1>
+      </div>
+      <section class="frame-function" v-if="funcion">
+        <div class="frame-function__poster">
+          <img :src="funcion.imagenesArray[0]" alt="Imagen de la obra">
         </div>
-        <section class="frame-function" v-if="funcion">
-          <div class="frame-function__poster">
-            <img :src=funcion.imagenesArray[0] alt="Imagen de la obra">
-          </div>
-          <div class="frame-function__title">
-            <h2>{{ funcion.nombre }}</h2>
-          </div>
-        </section>
-      </article>
-      <div class="asientos-container">
-      <svg v-if="asientos.length > 0" style="width: 500px; height: 500px;">
-        <rect v-for="(asiento, index) in asientos" :key="asiento.id"
-              :x="asiento.x" :y="asiento.y" width="20" height="20"
-              :fill="asiento.ocupado ? 'red' : 'green'"
-              style="cursor: pointer;" />
-      </svg>
+        <div class="frame-function__title">
+          <h2>{{ funcion.nombre }}</h2>
+        </div>
+      </section>
+    </article>
+    <div class="asientos-container">
+    <svg v-if="asientos && asientos.length > 0" style="width: 500px; height: 500px;">
+      <rect v-for="(asiento, index) in asientos" :key="asiento.idAsiento"
+            :x="asiento.x" :y="asiento.y" width="20" height="20"
+            style="cursor: pointer;" />
+    </svg>
     </div>
-      <p id="total-price">Precio Total: 0 €</p>
-      <button id="buy-button" @click="postEntradas">Comprar</button>
-    </main>
-  </template>
-  
-    
-  <script setup lang="ts">
-  import { ref, onMounted } from 'vue';
-  import { useRoute } from 'vue-router';
-  
-  interface Funcion {
-    nombre: string;
-    descripcion: string;
-    imagenesArray: string[];
-    actoresArray: string[];
-    fechasArray: string[];
-    id: string;
+    <p id="total-price">Precio Total: 0 €</p>
+    <button id="buy-button" @click="postEntradas">Comprar</button>
+  </main>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+
+interface Funcion {
+  nombre: string;
+  descripcion: string;
+  imagenesArray: string[];
+  actoresArray: string[];
+  fechasArray: string[];
+  id: string;
+}
+interface Asiento {
+  idAsiento: string;
+  isFree: boolean;
+  // Asegúrate de agregar las propiedades x e y si son necesarias para la posición de los asientos
+  x: number;
+  y: number;
+}
+
+const funcion = ref<Funcion | null>(null);
+  const asientos = ref<Asiento[]>([]);
+
+const route = useRoute();
+const idFuncion = route.params.Id as string;
+
+onMounted(async () => {
+  try {
+    const [responseFuncion, responseAsientos] = await Promise.all([
+      fetch('/api/funciones/' + idFuncion),
+      fetch(`/api/asientos/GetAll`) // Asegúrate de que la ruta coincide exactamente con tu API
+    ]);
+
+    if (!responseFuncion.ok) throw new Error('Error al obtener los datos de la función');
+    funcion.value = await responseFuncion.json();
+
+    if (!responseAsientos.ok) throw new Error('Error al obtener los asientos');
+    asientos.value = await responseAsientos.json(); // Esto debe devolver un array
+  } catch (error) {
+    console.error('Error:', error);
   }
-  
-  const funcion = ref<Funcion | null>(null);
-  
-  onMounted(async () => {
-    const route = useRoute();
-    const idFuncion = route.params.Id as string;
-    try {
-      const response = await fetch('/api/funciones/' + idFuncion);
-      if (!response.ok) throw new Error('Error al obtener los datos de la obra');
-      funcion.value = await response.json();
-    } catch (error) {
-      console.error('Error al obtener los datos de la obra:', error);
-    }
-  });
-  
-  
-  const postEntradas = async () => {
+});
+const postEntradas = async () => {
     if (!funcion.value) {
       alert('No se ha seleccionado ninguna obra.');
       return;
@@ -85,25 +97,6 @@
       alert('Error en la compra');
     }
   };
-  const asientos = ref([]);
-
-  onMounted(async () => {
-    const route = useRoute();
-    const idFuncion = route.params.Id as string;
-    try {
-        // Petición para los detalles de la función
-        const responseFuncion = await fetch('/api/funciones/' + idFuncion);
-        if (!responseFuncion.ok) throw new Error('Error al obtener los datos de la obra');
-        funcion.value = await responseFuncion.json();
-
-        // Petición GET para obtener los asientos
-        const responseAsientos = await fetch(`/api/asientos/${idFuncion}`);
-        if (!responseAsientos.ok) throw new Error('Error al obtener los asientos');
-        asientos.value = await responseAsientos.json();
-    } catch (error) {
-        console.error('Error:', error);
-    }
-});
   </script>
     
   <style>

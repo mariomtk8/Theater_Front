@@ -54,12 +54,12 @@ import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 
 interface Funcion {
-    nombre?: string;
-    descripcion?: string;
-    imagenesArray?: string[];
-    actoresArray?: string[];
-    fechasArray?: string[];
-    id?: string;
+    nombre: string;
+    descripcion: string;
+    imagenesArray: string[];
+    actoresArray: string[];
+    fechasArray: string[];
+    id: string;
 }
 
     const funcions = ref<Funcion | null>(null);
