@@ -17,6 +17,7 @@
   
   <script setup lang="ts">
   import { ref, onMounted } from 'vue';
+  import { useRoute } from 'vue-router';
 
   interface Funcion {
     nombre: string;
@@ -47,6 +48,30 @@ const fetchFunciones = async () => {
 onMounted(() => {
     fetchFunciones();
     
+});
+const fetchIdFuncione = async (idfuncion: string) => {
+    try {
+        const response = await fetch(`/api/funciones/${idfuncion}`);
+        if (response.ok) {
+            const data: Funcion = await response.json();
+            funcions.value = data;
+        } else {
+            console.error('Error al obtener los datos de la obra');
+        }
+    } catch (error) {
+        console.error('Error en la solicitud fetch:', error);
+    }
+}
+
+onMounted(() => {
+
+    const route = useRoute();
+    const idfuncion = route.params.Id as string; 
+    if (idfuncion) {
+console.log(idfuncion);
+
+    fetchIdFuncione(idfuncion);
+    }
 });
 
   </script>
