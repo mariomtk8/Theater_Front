@@ -45,10 +45,10 @@ const router = createRouter({
     path: '/HorariosCompra/:Id',
     name: 'HorariosCompra',
     component: HorariosCompra,
-    props: true
+    
 },
   {
-    path: '/CompraEntradas/:Id/Sesion/:IdSesion',
+    path: '/CompraEntradas/:Id',
     name: 'CompraEntradas',
     component: CompraEntradas,
     props: true

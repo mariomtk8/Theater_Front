@@ -13,22 +13,14 @@
         </div>
       </section>
     </article>
-    <div class="asientos-container">
-      <svg v-if="asientos && asientos.length > 0" style=" height: 200px;">
-        <rect v-for="(asiento, index) in asientos" :key="asiento.idAsiento"
-              :x="asiento.x" :y="asiento.y" width="40" height="40"
-              style="fill: #ccc; cursor: pointer; stroke: #333; stroke-width: 1px;"
-              @click="postEntradas"/>
-      </svg>
-    </div>
-
+    <div ref="cinemaSeatsContainer" class="cinema-seats"></div>
     <p id="total-price">Precio Total: 0 €</p>
-    <button id="buy-button" @click="postEntradas">Comprar</button>
+    <button id="buy-button" @click="comprarAsientos">Comprar</button>
   </main>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 
 interface Funcion {
@@ -38,88 +30,152 @@ interface Funcion {
   actoresArray: string[];
   fechasArray: string[];
   id: string;
-  idSesion: string;
 }
+
 interface Asiento {
-  idAsiento: string;
+  idAsiento: number;
   isFree: boolean;
-  // Asegúrate de agregar las propiedades x e y si son necesarias para la posición de los asientos
-  x: number;
-  y: number;
 }
-const seatsPerRow = 5;
-const seatsPerColumn = 4;
-const seatWidth = 40; // ancho del asiento
-const seatHeight = 40; // alto del asiento
-const gap = 6; // espacio entre asientos
+
+interface AsientoOcupado {
+  idAsiento: number;
+}
 
 const funcion = ref<Funcion | null>(null);
-  const asientos = ref<Asiento[]>([]);
-
+let asientos = ref<Asiento[]>([]);
+const cinemaSeatsContainer = ref<HTMLElement | null>(null);
+const asientosSeleccionados = ref<Asiento[]>([]);
+let asientosOcupados = ref<AsientoOcupado[]>([]);
 const route = useRoute();
 const idFuncion = route.params.Id as string;
-const idSesion = route.query.IdSesion as string;
+const idSesion = route.query.idSesion as string;
 
 onMounted(async () => {
   try {
-    const [responseFuncion, responseAsientos] = await Promise.all([
-      fetch('/api/funciones/' + idFuncion),
-      fetch(`/api/asientos/`)
-    ]);
+    const respuestaFuncion = await fetch(`/api/funciones/${idFuncion}`);
+    if (respuestaFuncion.ok) {
+      funcion.value = await respuestaFuncion.json();
+    } else {
+      console.error("Error al cargar la función");
+    }
 
-    if (!responseFuncion.ok) throw new Error('Error al obtener los datos de la función');
-    funcion.value = await responseFuncion.json();
+    const respuestaOcupados = await fetch(`/api/Funciones/${idFuncion}/Sesion/${idSesion}`);
+    if (respuestaOcupados.ok) {
+      const datosOcupados = await respuestaOcupados.json();
+      asientosOcupados.value = datosOcupados.map((asiento: any) => ({
+        idAsiento: asiento.idAsiento
+      }));
+    } else {
+      console.error("Error al cargar los asientos ocupados");
+    }
 
-    if (!responseAsientos.ok) throw new Error('Error al obtener los asientos');
-    const rawSeats: Asiento[] = await responseAsientos.json();
-    
-    // Asumimos que rawSeats podría necesitar la generación de posiciones
-    asientos.value = rawSeats.map((asiento, index) => {
-      const row = Math.floor(index / seatsPerRow);
-      const col = index % seatsPerRow;
-      asiento.x = col * (seatWidth + gap);
-      asiento.y = row * (seatHeight + gap);
-      return asiento;
-    });
+    const respuestaAsientos = await fetch(`/api/Asientos`);
+    if (respuestaAsientos.ok) {
+      const datosAsientos = await respuestaAsientos.json();
+      asientos.value = datosAsientos.map((asiento: any) => ({
+        idAsiento: asiento.idAsiento,
+        isFree: !asientosOcupados.value.some(ocupado => ocupado.idAsiento === asiento.idAsiento)
+      }));
+    } else {
+      console.error("Error al cargar todos los asientos");
+    }
+
+    generarButacas();
   } catch (error) {
-    console.error('Error:', error);
+    console.error("Error en la carga de datos:", error);
   }
 });
-const postEntradas = async () => {
-  if (!funcion.value) {
-    alert('No se ha seleccionado ninguna obra.');
+
+function generarButacas() {
+  const anchoAsiento = 40, altoAsiento = 40, espacioEntreAsientos = 10, espacioEntreFilas = 20;
+  const anchoReposabrazos = 10, altoReposabrazos = altoAsiento;
+  const anchoSvg = (anchoAsiento + espacioEntreAsientos + anchoReposabrazos * 2) * 5;
+
+  const anchoPantalla = anchoSvg * 0.8;
+  const altoPantalla = 100;
+  const xPantalla = (anchoSvg - anchoPantalla) / 2;
+  const yPantalla = 20;
+
+  let svgHTML = `<svg width="350" height="400">`;
+
+  asientos.value.forEach((asiento, index) => {
+    const fila = Math.floor(index / 5);
+    const posAsiento = index % 5;
+    const x = posAsiento * (anchoAsiento + espacioEntreAsientos* 2);
+    const y = fila * (altoAsiento + espacioEntreFilas) + altoPantalla + yPantalla * 2;
+    const color = asiento.isFree ? '#00008B' : 'red';
+
+    svgHTML += `<rect id="asiento-${asiento.idAsiento}" x="${x + anchoReposabrazos}" y="${y}" width="${anchoAsiento}" height="${altoAsiento}" rx="5" ry="5" style="stroke:black; fill:${color}" />`;
+
+  });
+
+  svgHTML += '</svg>';
+
+  nextTick(() => {
+    if (cinemaSeatsContainer.value) {
+      cinemaSeatsContainer.value.innerHTML = svgHTML;
+      cinemaSeatsContainer.value.querySelectorAll('rect').forEach(rect => {
+        const idAsiento = parseInt(rect.id.replace('asiento-', ''));
+        if (asientos.value.find(a => a.idAsiento === idAsiento && a.isFree)) {
+          rect.addEventListener('click', () => {
+            cambiarColor(rect);
+          });
+        }
+      });
+    }
+  });
+}
+
+function cambiarColor(asiento: SVGElement) {
+  const idAsiento = parseInt(asiento.id.replace('asiento-', ''));
+
+  const indexSeleccionado = asientosSeleccionados.value.findIndex(a => a.idAsiento === idAsiento);
+
+  const estaOcupado = asientosOcupados.value.some(a => a.idAsiento === idAsiento);
+
+
+  if (estaOcupado) {
     return;
   }
-  
-  const url = `api/Funciones/${idFuncion}/Sesion/${idSesion}/AñadirAsientos`;
-  // Filtramos solo los asientos que no están libres (suponiendo que isFree indica disponibilidad)
-  const asientosSeleccionados = asientos.value.filter(asiento => !asiento.isFree);
-  const data = {
-  asientos: asientosSeleccionados.map(asiento => ({
-    idAsiento: asiento.idAsiento,
-    isFree: !asiento.isFree  // Asumiendo que quieres cambiar el estado a no libre
-  }))
-};
-  
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-  
-      if (!response.ok) throw new Error('Error al actualizar el asiento');
-      const responseData = await response.json();
-      alert('Compra realizada');
-  
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Error al actualizar el asiento');
+
+  if (indexSeleccionado > -1) {
+    asientosSeleccionados.value.splice(indexSeleccionado, 1);
+    asiento.style.fill = '#00008B';
+  } else {
+
+    asientosSeleccionados.value.push({ idAsiento, isFree: false });
+    asiento.style.fill = 'red';
+  }
+}
+
+async function comprarAsientos() {
+  try {
+    const url = `/api/Funciones/${idFuncion}/Sesion/${idSesion}/ReservarAsiento`;
+    const asientosParaEnviar = asientosSeleccionados.value.map(asiento => ({
+      idAsiento: asiento.idAsiento,
+      isFree: false
+    }));
+    const respuesta = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(asientosParaEnviar),
+    });
+
+    if (!respuesta.ok) {
+      throw new Error('Error en la reserva de asientos');
     }
-  };
-  </script>
+
+    console.log('Reserva realizada con éxito');
+    asientosSeleccionados.value = [];
+  } catch (error) {
+    console.error('Error al realizar la reserva:', error);
+  }
+}
+
+const calcularTotal = computed(() => asientosSeleccionados.value.length * 5);
+</script>
     
   <style>
   body,
