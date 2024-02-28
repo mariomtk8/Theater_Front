@@ -177,7 +177,7 @@ async function comprarAsientos() {
 const calcularTotal = computed(() => asientosSeleccionados.value.length * 5);
 </script>
     
-  <style>
+  <style scoped>
   body,
   h1,
   h2,
@@ -278,7 +278,6 @@ const calcularTotal = computed(() => asientosSeleccionados.value.length * 5);
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: 15vh;
   }
   
   .container {

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import Section1 from '../components/Section1.vue'
-import Article from '../components/Article.vue'
 
 interface Funcion {
     nombre: string;
@@ -49,7 +48,7 @@ onMounted(() => {
 
             </article>
 </template>
-<style>
+<style scoped>
 body,
 h1,
 h2,
@@ -72,7 +71,6 @@ body {
     background-color: #1E3367;
     display: flex;
     align-items: center;
-    min-height: 60vh;
 }
 
 .performance-block__info {
@@ -207,6 +205,7 @@ body {
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: center;
     }
 
     .title-posters {

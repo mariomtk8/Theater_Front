@@ -1,59 +1,60 @@
-<template>
-    <body>
-        <main class="main">
-            <div class="main-block">
-                <h1>Programación</h1>
-            </div>
-            <section class="poster-container">
-                <div v-for="funcion in funcions" :key="funcion.id" class='show-poster'>
-                    <div class='show-poster__image'>
-                        <img :src="funcion.imagenesArray && funcion.imagenesArray.length > 0 ? funcion.imagenesArray[0] : 'imagen-predeterminada.jpg'"
-                            alt="Imagen de la funcion" />
-                    </div>
-                    <div class='show-poster__details'>
-                        <h3 class='show-poster__details__title'>{{ funcion.nombre }}</h3>
-                        <RouterLink :key="funcion.id" :to="{ path: '/InfoFuncion/' + funcion.id }" class='show-poster__button'>Comprar
-                            Entradas</RouterLink>
-                    </div>
-                </div>
-            </section>
-        </main>
-    </body>
-</template>
-
-  
 <script setup lang="ts">
-import { ref, onMounted, reactive } from 'vue';
+import { ref, onMounted } from 'vue';
+import Section1 from '../components/Section1.vue'
 
 interface Funcion {
-  nombre?: string;
-  imagenesArray?: string[];
-  id?: string;
+    nombre: string;
+    imagenesArray: string[];
+    id: string;
 }
 
 const funcions = ref<Funcion[]>([]);
 
 const fetchFunciones = async () => {
-  try {
-    const response = await fetch('/api/funciones/');
-    if (!response.ok) {
-      throw new Error('Error al obtener los datos de las funciones');
+    try {
+        const response = await fetch('/api/funciones');
+        if (!response.ok) {
+            throw new Error('Error al obtener los datos de las funciones');
+        }
+        const data = await response.json();
+        funcions.value = data;
+    } catch (error) {
+        console.error('Error al obtener los datos de las funciones:', error);
     }
-    const data = await response.json();
-    funcions.value = data;
-    console.log("Funciones cargadas:", funcions.value); // Depuración adicional
-  } catch (error) {
-    console.error('Error al obtener los datos de las funciones:', error);
-  }
 };
 
 onMounted(() => {
-  fetchFunciones();
+    fetchFunciones();
+    
 });
 </script>
+    
+<template>
+    <div class="margen-Boton">
+        <RouterLink to="Admin/PanelAdmin"><button class="Boton-Admin">Panel de Administrador</button></RouterLink>
+    </div>
 
+    <Section1>
 
-<style >
+    </Section1>
+
+    <article>
+                <section class="poster-container">
+                    <div v-for="funcion in funcions" :key="funcion.id" class='show-poster'>
+                        <div class='show-poster__image'>
+                            <img :src="funcion.imagenesArray && funcion.imagenesArray.length > 0 ? funcion.imagenesArray[0] : 'imagen-predeterminada.jpg'"
+                                alt="Imagen de la funcion" />
+                        </div>
+                        <div class='show-poster__details'>
+                            <h3 class='show-poster__details__title'>{{ funcion.nombre }}</h3>
+                            <RouterLink  :to="{ path: '/InfoFuncion/' + funcion.id }" class='show-poster__button'>ComprarEntradas</RouterLink>
+                        </div>
+                    </div>
+                </section>
+
+            </article>
+</template>
+<style scoped>
 body,
 h1,
 h2,
@@ -71,15 +72,31 @@ body {
     line-height: 1.6;
     overflow: auto;
 }
-.main-block h1 {
-    margin-left: 6vh;
-    color: white;
-}
+    .margen-Boton{
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+    .Boton-Admin{
+        height: 80px;
+        width: 250px;
+        margin-top: 6vh;
+        background-color: #1E3367;
+        color: white;
+        border-radius: 15px;
+    }
 
+    article {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
 .performance-block {
     background-color: #1E3367;
     display: flex;
     align-items: center;
+    margin-top: 10vh;
 }
 
 .performance-block__info {
@@ -89,7 +106,7 @@ body {
 }
 
 .performance-block__title {
-    color: #ffffff;
+    color: #000000;
     margin-bottom: 5vh;
     font-size: xxx-large;
 }
@@ -97,8 +114,8 @@ body {
 .performance-block__button {
     display: inline-block;
     padding: 10px 20px;
-    background-color: #ffffff;
-    color: #ffffff;
+    background-color: #fffefe ;
+    color: #000000 ;
     text-decoration: none;
     border-radius: 8px;
     font-size: x-large;
@@ -143,24 +160,23 @@ body {
 
 .poster-container {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center; 
+    justify-content: space-evenly;
     background-color: white;
     padding: 20px;
-    margin: 0 auto; 
-    gap: 20px; 
-    max-width: 1200px;
+    margin: 20px;
+
 }
 
 .show-poster {
     text-align: center;
     background-color: #1E3367;
     padding: 20px;
-    width: 264px; 
-    height: 420px; 
+    width: 264px;
+    height: 400px;
+
     border: #ffffff 2px solid;
     box-sizing: border-box;
-    margin-bottom: 20px; 
+
 }
 
 .show-poster__image {
@@ -179,24 +195,21 @@ body {
 }
 
 .show-poster__details {
-    color: white; 
-    margin-bottom: 3vh;
-    padding: 20px;  
-    border-top: 2px solid white;
+    color: white;
+    font-size: smaller;
+    margin-top: 4vh;
+}
+
+.show-poster__title {
+    
+    margin-top: 3vh;
 }
 
 .show-poster__button {
-    padding: 12px 24px; /* Aumenta el relleno para un botón más grande */
-    background-color: #ffffff; /* Color de fondo del botón */
-    color: #1E3367; /* Color del texto del botón */
+    padding: 10px 20px;
+    background-color: #ffffff;
+    color: #1E3367;
     cursor: pointer;
-    border: none; /* Elimina el borde del botón */
-    border-radius: 5px; /* Añade bordes redondeados */
-    transition: background-color 0.3s, color 0.3s;
-}
-.show-poster__button:hover {
-    background-color: #1E3367; 
-    color: #ffffff;
 }
 
 
@@ -219,6 +232,7 @@ body {
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: center;
     }
 
     .title-posters {
