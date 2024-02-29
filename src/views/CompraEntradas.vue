@@ -13,7 +13,7 @@
         </div>
       </section>
     </article>
-    <div ref="cinemaSeatsContainer" class="cinema-seats"></div>
+    <div ref="AsientosContainer" class="cinema-seats"></div>
     <p id="total-price">Precio Total: 0 €</p>
     <button id="buy-button" @click="comprarAsientos">Comprar</button>
   </main>
@@ -43,7 +43,7 @@ interface AsientoOcupado {
 
 const funcion = ref<Funcion | null>(null);
 let asientos = ref<Asiento[]>([]);
-const cinemaSeatsContainer = ref<HTMLElement | null>(null);
+const AsientosContainer = ref<HTMLElement | null>(null);
 const asientosSeleccionados = ref<Asiento[]>([]);
 let asientosOcupados = ref<AsientoOcupado[]>([]);
 const route = useRoute();
@@ -51,74 +51,73 @@ const idFuncion = route.params.Id as string;
 const idSesion = route.query.idSesion as string;
 
 onMounted(async () => {
-  try {
-    const respuestaFuncion = await fetch(`/api/funciones/${idFuncion}`);
-    if (respuestaFuncion.ok) {
-      funcion.value = await respuestaFuncion.json();
-    } else {
-      console.error("Error al cargar la función");
-    }
+  await cargarAsientosOcupados(idFuncion, idSesion);
+  await cargarTodosLosAsientos();
+});
 
-    const respuestaOcupados = await fetch(`/api/Funciones/${idFuncion}/Sesion/${idSesion}`);
-    if (respuestaOcupados.ok) {
-      const datosOcupados = await respuestaOcupados.json();
+async function cargarAsientosOcupados(idFuncion: string, idSesion: string) {
+  try {
+    const respuesta = await fetch(`/api/Funciones/${idFuncion}/Sesion/${idSesion}`);
+    if (respuesta.ok) {
+      const datosOcupados = await respuesta.json();
       asientosOcupados.value = datosOcupados.map((asiento: any) => ({
-        idAsiento: asiento.idAsiento
+        idAsiento: asiento.idAsiento,
+        IsFree : false
       }));
     } else {
       console.error("Error al cargar los asientos ocupados");
     }
+  } catch (error) {
+    console.error("Error en la carga de asientos ocupados:", error);
+  }
+}
 
-    const respuestaAsientos = await fetch(`/api/Asientos`);
-    if (respuestaAsientos.ok) {
-      const datosAsientos = await respuestaAsientos.json();
+async function cargarTodosLosAsientos() {
+  try {
+    const respuesta = await fetch(`/api/Asientos`);
+    if (respuesta.ok) {
+      const datosAsientos = await respuesta.json();
       asientos.value = datosAsientos.map((asiento: any) => ({
         idAsiento: asiento.idAsiento,
         isFree: !asientosOcupados.value.some(ocupado => ocupado.idAsiento === asiento.idAsiento)
       }));
+      generarButacas();
     } else {
       console.error("Error al cargar todos los asientos");
     }
-
-    generarButacas();
   } catch (error) {
-    console.error("Error en la carga de datos:", error);
+    console.error("Error en la carga de todos los asientos:", error);
   }
-});
+}
 
 function generarButacas() {
   const anchoAsiento = 40, altoAsiento = 40, espacioEntreAsientos = 10, espacioEntreFilas = 20;
-  const anchoReposabrazos = 10, altoReposabrazos = altoAsiento;
-  const anchoSvg = (anchoAsiento + espacioEntreAsientos + anchoReposabrazos * 2) * 5;
+  const asientosPorFila = 6; 
+  const anchoSvg = asientosPorFila * (anchoAsiento + espacioEntreAsientos);
 
-  const anchoPantalla = anchoSvg * 0.8;
-  const altoPantalla = 100;
-  const xPantalla = (anchoSvg - anchoPantalla) / 2;
-  const yPantalla = 20;
-
-  let svgHTML = `<svg width="350" height="400">`;
+  let svgHTML = `<svg width="${anchoSvg}" height="400">`; 
 
   asientos.value.forEach((asiento, index) => {
-    const fila = Math.floor(index / 5);
-    const posAsiento = index % 5;
-    const x = posAsiento * (anchoAsiento + espacioEntreAsientos* 2);
-    const y = fila * (altoAsiento + espacioEntreFilas) + altoPantalla + yPantalla * 2;
+    const fila = Math.floor(index / asientosPorFila);
+    const posAsiento = index % asientosPorFila;
+    const x = posAsiento * (anchoAsiento + espacioEntreAsientos);
+    const y = fila * (altoAsiento + espacioEntreFilas);
     const color = asiento.isFree ? '#00008B' : 'red';
 
-    svgHTML += `<rect id="asiento-${asiento.idAsiento}" x="${x + anchoReposabrazos}" y="${y}" width="${anchoAsiento}" height="${altoAsiento}" rx="5" ry="5" style="stroke:black; fill:${color}" />`;
-
+    svgHTML += `<rect id="asiento-${asiento.idAsiento}" x="${x}" y="${y}" width="${anchoAsiento}" height="${altoAsiento}" style="stroke:black; fill:${color}"></rect>`;
   });
 
   svgHTML += '</svg>';
 
   nextTick(() => {
-    if (cinemaSeatsContainer.value) {
-      cinemaSeatsContainer.value.innerHTML = svgHTML;
-      cinemaSeatsContainer.value.querySelectorAll('rect').forEach(rect => {
+    if (AsientosContainer.value) {
+      AsientosContainer.value.innerHTML = svgHTML;
+      AsientosContainer.value.querySelectorAll('rect').forEach(rect => {
         const idAsiento = parseInt(rect.id.replace('asiento-', ''));
-        if (asientos.value.find(a => a.idAsiento === idAsiento && a.isFree)) {
+        const asientoActual = asientos.value.find(a => a.idAsiento === idAsiento);
+        if (asientoActual && asientoActual.isFree) {
           rect.addEventListener('click', () => {
-            cambiarColor(rect);
+            cambiarColor(rect); 
           });
         }
       });
@@ -173,8 +172,6 @@ async function comprarAsientos() {
     console.error('Error al realizar la reserva:', error);
   }
 }
-
-const calcularTotal = computed(() => asientosSeleccionados.value.length * 5);
 </script>
     
   <style scoped>
