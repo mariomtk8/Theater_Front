@@ -84,5 +84,26 @@ body {
     width: 40px;
     margin-right: 4vh;
 }
+@media screen and (max-width: 1150px) {
+    .footer {
+      display: flex;
+      justify-content: center;
+    }
+  
+    .footer__logo {
+      text-align: center;
+    }
+  
+    .footer__menu {
+      display: flex;
+      flex-direction: column;
+    }
+  
+    .footer__networks {
+      display: flex;
+      flex-direction: column;
+    }
+
+}
 
 </style>

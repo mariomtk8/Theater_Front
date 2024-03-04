@@ -1,41 +1,31 @@
-
 <template>
     <main>
       <section class="main-block">
-        <h1 class="main-block__title">Compra de entradas</h1>
+        <h1 class="main-block__title">Hosarios de la funcion</h1>
       </section>
-  
-      <section class="frame-function" v-if="funcions">
-        <div class="frame-function__poster">
-          <img :src="funcions.imagenesArray[0]" alt="Imagen de la obra" v-if="funcions.imagenesArray.length > 0" />
-        </div>
-        <div class="frame-function__title">
-          <h2 class="frame-function__title-text">{{ funcions.nombre }}</h2>
-        </div>
-      </section>
-  
+      <FrameMain></FrameMain>
       <div id="container" class="information-container">
         <h2 class="information-title">Información de Fechas y Horas</h2>
         <div class="container-frame">
   <ul class="horarios-txt__list">
-    <li v-if="funcions?.fechasArray && funcions.fechasArray.length >= 1" class="horarios-txt__item">
-      {{ funcions.fechasArray[0] }}
-      <RouterLink v-if="funcions && funcions.id" :to="{
-        path: '/CompraEntradas/' + funcions.id,
+    <li v-if="store.funcion?.fechaUno" class="horarios-txt__item">
+      {{ store.funcion.fechaUno }}
+      <RouterLink v-if="store.funcion && store.funcion.id" :to="{
+        path: '/CompraEntradas/' + store.funcion.id,
         query: { idSesion: 1 }
       }" class="show-poster__button">Comprar</RouterLink>
     </li>
-    <li v-if="funcions?.fechasArray && funcions.fechasArray.length >= 2" class="horarios-txt__item">
-      {{ funcions.fechasArray[1] }}
-      <RouterLink v-if="funcions && funcions.id" :to="{
-        path: '/CompraEntradas/' + funcions.id,
+    <li v-if="store.funcion?.fechaDos" class='horarios-txt__item'>
+      {{ store.funcion.fechaDos }}
+      <RouterLink v-if="store.funcion && store.funcion.id" :to="{
+        path: '/CompraEntradas/' + store.funcion.id,
         query: { idSesion: 2 }
       }" class="show-poster__button">Comprar</RouterLink>
     </li>
-    <li v-if="funcions?.fechasArray && funcions.fechasArray.length >= 3" class="horarios-txt__item">
-      {{ funcions.fechasArray[2] }}
-      <RouterLink v-if="funcions && funcions.id" :to="{
-        path: '/CompraEntradas/' + funcions.id,
+    <li v-if="store.funcion?.fechaTres" class='horarios-txt__item'>
+            {{ store.funcion.fechaTres }}
+      <RouterLink v-if="store.funcion && store.funcion.id" :to="{
+        path: '/CompraEntradas/' + store.funcion.id,
         query: { idSesion: 3 }
       }" class="show-poster__button">Comprar</RouterLink>
     </li>
@@ -46,49 +36,26 @@
   </template>
   
   <script setup lang="ts">
-  import { ref, onMounted } from 'vue';
-  import { useRoute } from 'vue-router';
-  
-  interface Funcion {
-    nombre: string;
-    descripcion: string;
-    imagenesArray: string[];
-    actoresArray: string[];
-    fechasArray: string[];
-    id: string;
-    //idSesion: string;
-}
-  
-  const funcions = ref<Funcion | null>(null);
+  import FrameMain from '@/components/Frame-Main.vue';
+import { onMounted, nextTick } from 'vue';
+import { useRoute } from 'vue-router';
+import { useFetchFuncion } from '../store/InfoFuncion';
 
+const store = useFetchFuncion();
+const route = useRoute();
 
-const fetchFunciones = async (idfuncion: string) => {
-    try {
-        const response = await fetch(`/api/funciones/${idfuncion}`);
-        if (response.ok) {
-            const data: Funcion = await response.json();
-            funcions.value = data;
-        } else {
-            console.error('Error al obtener los datos de la obra');
-        }
-    } catch (error) {
-        console.error('Error en la solicitud fetch:', error);
-    }
-}
-
-onMounted(() => {
-
-    const route = useRoute();
-    const idfuncion = route.params.Id as string; 
+onMounted(async () => {
+    await nextTick(); 
+    const idfuncion = route.params.Id as string;
     if (idfuncion) {
-console.log(idfuncion);
-
-        fetchFunciones(idfuncion);
+        await store.fetchFunciones(idfuncion);
+    } else {
+        console.error('ID de función no encontrado en la ruta.');
     }
 });
-  </script>
+</script>
   
-  <style>
+  <style scoped>
   body,
   h1,
   h2,
@@ -101,14 +68,14 @@ console.log(idfuncion);
     text-decoration: none;
   }
   
-  /* Estilos generales del cuerpo */
+ 
   body {
     font-family: 'Roboto';
     line-height: 1.6;
     overflow: auto;
   }
   
-  /* Estilos del bloque principal */
+
   .main-block {
     display: flex;
     align-items: center;
@@ -125,49 +92,13 @@ console.log(idfuncion);
     margin-left: 20vh;
   }
   
-  /* .show-poster__button {
-    background-color: #1E3367 ;
-    color: #e9e3e3 ;
-    border: none ;
-    font-size: 16px ;
-    margin-left: 10px ;
-  }
-   */
-  /* Estilos del marco de la función */
-  .frame-function {
-    display: flex;
-    align-items: center;
-    background-color: #1E3367;
-    width: 800px;
-    height: 450px;
-    text-align: center;
-    max-width: 977px;
-    margin: auto;
-  }
-  
-  .frame-function__poster {
-    flex: 1;
-  }
-  
-  .frame-function__poster img {
-    width: 280px;
-  }
-  
-  .frame-function__title {
-    flex: 1;
-  }
-  
-  .frame-function__title h2 {
-    font-size: 30px;
-    color: white;
-  }
+
 
   .information-title{
     margin: 5vh;
     font-size: 30px;
   }
   
-  /* Estilos del contenedor */
   #container {
     text-align: center;
   }
@@ -201,6 +132,20 @@ console.log(idfuncion);
     max-width: 900px;
     margin: auto;
   }
+
+  .horarios-txt {
+        margin-top: 3vh;
+    }
+
+    .horarios-txt__title {
+        font-size: 32px;
+        margin-bottom: 10px;
+    }
+
+    .horarios-txt__item {
+        font-size: 22px;
+        margin: 15px;
+    }
   
   .fecha,
   .hora,
@@ -208,83 +153,22 @@ console.log(idfuncion);
     flex: 1;
   }
   
-  .boton-comprar {
+  .show-poster__button {
+    padding: 12px 24px;
+    background-color: #ffffff;
+    color: #1E3367;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s; 
+}
+
+.show-poster__button:hover {
     background-color: #1E3367;
-    color: white;
-    padding: 8px 15px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 14px;
-    border-radius: 4px;
-  }
-  
-  .boton-comprar:hover {
-    background-color: #45a049;
-  }
-  
-  /* Estilos del pie de página */
-  .footer {
-    margin-top: 10vh;
-    display: flex;
-    align-items: center;
-    background-color: #1E3367;
-    text-align: center;
-    width: 100%;
-    height: 25vh;
-  }
-  
-  .footer__logo {
-    flex: 0.7;
-    text-align: right;
-  }
-  
-  .footer__menu {
-    flex: 1;
-    text-align: center;
-  }
-  
-  .footer__menu a {
-    color: white;
-    margin-right: 2vh;
-  }
-  
-  .footer__networks {
-    flex: 0.7;
-    text-align: left;
-  }
-  
-  .footer__logo img {
-    width: 90px;
-    border-radius: 70px;
-  }
-  
-  .footer__networks img {
-    width: 40px;
-    margin-right: 4vh;
-  }
+    color: #ffffff;
+}
   
   @media screen and (max-width: 1150px) {
-  
-  
-    .header {
-      margin-top: 5vh;
-      display: flex;
-      height: auto;
-      text-align: center;
-      margin-bottom: 5vh;
-    }
-  
-    .header__logo {
-      margin-left: 5vh;
-    }
-  
-    .header__nav {
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      margin-top: 10px;
-    }
   
     main {
       margin: 0 15px;
@@ -297,24 +181,6 @@ console.log(idfuncion);
       height: 500px;
     }
   
-    .footer {
-      display: flex;
-      justify-content: center;
-    }
-  
-    .footer__logo {
-      text-align: center;
-    }
-  
-    .footer__menu {
-      display: flex;
-      flex-direction: column;
-    }
-  
-    .footer__networks {
-      display: flex;
-      flex-direction: column;
-    }
   
     .main-block h1 {
       margin-left: 6vh;

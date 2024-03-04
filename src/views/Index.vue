@@ -1,53 +1,14 @@
-<script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import Section1 from '../components/Section1.vue'
-
-interface Funcion {
-    nombre: string;
-    imagenesArray: string[];
-    id: string;
-}
-
-const funcions = ref<Funcion[]>([]);
-
-const fetchFunciones = async () => {
-    try {
-        const response = await fetch('/api/funciones');
-        if (!response.ok) {
-            throw new Error('Error al obtener los datos de las funciones');
-        }
-        const data = await response.json();
-        funcions.value = data;
-    } catch (error) {
-        console.error('Error al obtener los datos de las funciones:', error);
-    }
-};
-
-onMounted(() => {
-    fetchFunciones();
-    
-});
-</script>
-
 <template>
     <Section1></Section1>
     <article>
-                <section class="poster-container">
-                    <div v-for="funcion in funcions" :key="funcion.id" class='show-poster'>
-                        <div class='show-poster__image'>
-                            <img :src="funcion.imagenesArray && funcion.imagenesArray.length > 0 ? funcion.imagenesArray[0] : 'imagen-predeterminada.jpg'"
-                                alt="Imagen de la funcion" />
-                        </div>
-                        <div class='show-poster__details'>
-                            <h3 class='show-poster__details__title'>{{ funcion.nombre }}</h3>
-                            <RouterLink  :to="{ path: '/InfoFuncion/' + funcion.id }" class='show-poster__button'>Comprar
-                                Entradas</RouterLink>
-                        </div>
-                    </div>
-                </section>
-
-            </article>
+            <CartelIA></CartelIA>
+    </article>
 </template>
+
+<script setup lang="ts">
+    import CartelIA from '@/components/Cartel-IA.vue';
+    import Section1 from '../components/Section1.vue'   
+</script>
 <style scoped>
 body,
 h1,
@@ -130,59 +91,6 @@ body {
 
 .title-posers_txt {
     font-size: xx-large;
-}
-
-.poster-container {
-    display: flex;
-    justify-content: space-evenly;
-    background-color: white;
-    padding: 20px;
-    margin: 20px;
-}
-
-.show-poster {
-    text-align: center;
-    background-color: #1E3367;
-    padding: 20px;
-    width: 264px;
-    height: 400px;
-
-    border: #ffffff 2px solid;
-    box-sizing: border-box;
-
-}
-
-.show-poster__image {
-    margin-bottom: 10px;
-}
-
-.show-poster__image img {
-    width: 100%;
-    height: 20vh;
-}
-
-.poster__img {
-    height: 300px;
-    width: 100%;
-
-}
-
-.show-poster__details {
-    color: white;
-    font-size: smaller;
-    margin-top: 4vh;
-}
-
-.show-poster__title {
-    
-    margin-top: 3vh;
-}
-
-.show-poster__button {
-    padding: 10px 20px;
-    background-color: #ffffff;
-    color: #1E3367;
-    cursor: pointer;
 }
 
 

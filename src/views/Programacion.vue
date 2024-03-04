@@ -4,56 +4,25 @@
             <div class="main-block">
                 <h1>Programación</h1>
             </div>
-            <section class="poster-container">
-                <div v-for="funcion in funcions" :key="funcion.id" class='show-poster'>
-                    <div class='show-poster__image'>
-                        <img :src="funcion.imagenesArray && funcion.imagenesArray.length > 0 ? funcion.imagenesArray[0] : 'imagen-predeterminada.jpg'"
-                            alt="Imagen de la funcion" />
-                    </div>
-                    <div class='show-poster__details'>
-                        <h3 class='show-poster__details__title'>{{ funcion.nombre }}</h3>
-                        <RouterLink :key="funcion.id" :to="{ path: '/InfoFuncion/' + funcion.id }" class='show-poster__button'>Comprar
-                            Entradas</RouterLink>
-                    </div>
-                </div>
-            </section>
+            <CartelIA></CartelIA>
         </main>
     </body>
 </template>
 
-  
 <script setup lang="ts">
-import { ref, onMounted, reactive } from 'vue';
-
-interface Funcion {
-  nombre?: string;
-  imagenesArray?: string[];
-  id?: string;
-}
-
-const funcions = ref<Funcion[]>([]);
-
-const fetchFunciones = async () => {
-  try {
-    const response = await fetch('/api/funciones/');
-    if (!response.ok) {
-      throw new Error('Error al obtener los datos de las funciones');
-    }
-    const data = await response.json();
-    funcions.value = data;
-    console.log("Funciones cargadas:", funcions.value); // Depuración adicional
-  } catch (error) {
-    console.error('Error al obtener los datos de las funciones:', error);
-  }
-};
+import CartelIA from '@/components/Cartel-IA.vue';
+import { useProgramacion } from '../store/Programacion';
+import { onMounted } from 'vue'
+import { RouterLink } from 'vue-router'
+const store = useProgramacion()
 
 onMounted(() => {
-  fetchFunciones();
-});
+    store.fetchFunciones()
+})
 </script>
 
 
-<style >
+<style scoped >
 body,
 h1,
 h2,
@@ -140,66 +109,6 @@ body {
 .title-posers_txt {
     font-size: xx-large;
 }
-
-.poster-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center; 
-    background-color: white;
-    padding: 20px;
-    margin: 0 auto; 
-    gap: 20px; 
-    max-width: 1200px;
-}
-
-.show-poster {
-    text-align: center;
-    background-color: #1E3367;
-    padding: 20px;
-    width: 264px; 
-    height: 420px; 
-    border: #ffffff 2px solid;
-    box-sizing: border-box;
-    margin-bottom: 20px; 
-}
-
-.show-poster__image {
-    margin-bottom: 10px;
-}
-
-.show-poster__image img {
-    width: 100%;
-    height: 20vh;
-}
-
-.poster__img {
-    height: 300px;
-    width: 100%;
-
-}
-
-.show-poster__details {
-    color: white; 
-    margin-bottom: 3vh;
-    padding: 20px;  
-    border-top: 2px solid white;
-}
-
-.show-poster__button {
-    padding: 12px 24px; /* Aumenta el relleno para un botón más grande */
-    background-color: #ffffff; /* Color de fondo del botón */
-    color: #1E3367; /* Color del texto del botón */
-    cursor: pointer;
-    border: none; /* Elimina el borde del botón */
-    border-radius: 5px; /* Añade bordes redondeados */
-    transition: background-color 0.3s, color 0.3s;
-}
-.show-poster__button:hover {
-    background-color: #1E3367; 
-    color: #ffffff;
-}
-
-
 
 @media screen and (max-width: 1150px) {
     .performance-block {

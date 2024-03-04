@@ -1,28 +1,35 @@
 <template>
     <div>
+        <div v-if="store.isLoading">Cargando...</div>
+        <div v-if="store.error">{{ store.error }}</div>
         <main>
             <div class="main-block">
-                <h1 class="main-block__title">{{ funcions?.nombre }}</h1>
+                
+                <h1 class="main-block__title">{{ store.funcion?.nombre }}</h1>
             </div>
-            <section class="horarios" v-if="funcions && funcions.imagenesArray && funcions.imagenesArray.length > 0">
+            <section class="horarios" v-if="store.funcion && store.funcion.imagenes && store.funcion.imagenes.length > 0">
                 <div class="horarios-img">
-                    <img :src="funcions.imagenesArray[0]" alt="Imagen destacada de la funcion" />
+                   
+                    <img :src="store.funcion.imagenes.split(',')[0]" alt="Imagen destacada de la función" />
                 </div>
                 <div class="horarios-txt">
                     <h2 class="horarios-txt__title">Horarios de la función</h2>
                     <ul class="horarios-txt__list">
-                        <li v-for="horario in funcions?.fechasArray" :key="horario" class="horarios-txt__item">{{ horario }}
+                        
+                        <li v-for="fecha in [store.funcion.fechaUno, store.funcion.fechaDos, store.funcion.fechaTres]"
+                            :key="fecha" class="horarios-txt__item">{{ fecha }}
                         </li>
                     </ul>
                 </div>
             </section>
-            <div class="primera-img" v-if="funcions && funcions.imagenesArray && funcions.imagenesArray.length > 1">
-                <img :src="funcions.imagenesArray[1]" alt="Imagen destacada de la funcion" />
+            <div class="primera-img" v-if="store.funcion && store.funcion.imagenes && store.funcion.imagenes.length > 1">
+                
+                <img :src="store.funcion.imagenes.split(',')[1]" alt="Segunda imagen destacada de la función" />
             </div>
             <article>
                 <div class="button-bought" id="boton-comprar">
-                    <RouterLink :to="{ path: '/HorariosCompra/' + funcions?.id }" class='show-poster__button'>Comprar Entradas
-                    </RouterLink>
+                    
+                    <RouterLink :to="{ path: '/HorariosCompra/' + store.funcion?.id }" class='show-poster__button'>Comprar Entradas</RouterLink>
                 </div>
             </article>
             <section>
@@ -31,7 +38,8 @@
                         <h2>Información de la función</h2>
                     </div>
                     <div class="frame-information__txt">
-                        <p>{{ funcions?.descripcion }}</p>
+                        
+                        <p>{{ store.funcion?.descripcion }}</p>
                     </div>
                 </div>
                 <div class="frame-repart">
@@ -40,7 +48,8 @@
                     </div>
                     <div class="frame-repart__txt">
                         <ul class="frame-repart__list">
-                            <li v-for="actor in funcions?.actoresArray" :key="actor" class="frame-repart__item">{{ actor }}</li>
+                            
+                            <li v-for="actor in store.funcion?.actores?.split(',')" :key="actor" class="frame-repart__item">{{ actor }}</li>
                         </ul>
                     </div>
                 </div>
@@ -50,48 +59,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { onMounted, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
+import { useFetchFuncion } from '../store/InfoFuncion';
 
-interface Funcion {
-    nombre: string;
-    descripcion: string;
-    imagenesArray: string[];
-    actoresArray: string[];
-    fechasArray: string[];
-    id: string;
-}
+const store = useFetchFuncion();
+const route = useRoute();
 
-    const funcions = ref<Funcion | null>(null);
-
-
-const fetchFunciones = async (idfuncion: string) => {
-    try {
-        const response = await fetch(`/api/funciones/${idfuncion}`);
-        if (response.ok) {
-            const data: Funcion = await response.json();
-            funcions.value = data;
-        } else {
-            console.error('Error al obtener los datos de la obra');
-        }
-    } catch (error) {
-        console.error('Error en la solicitud fetch:', error);
-    }
-}
-
-onMounted(() => {
-
-    const route = useRoute();
-    const idfuncion = route.params.Id as string; 
+onMounted(async () => {
+    await nextTick(); 
+    const idfuncion = route.params.Id as string;
     if (idfuncion) {
-console.log(idfuncion);
-
-        fetchFunciones(idfuncion);
+        await store.fetchFunciones(idfuncion);
+    } else {
+        console.error('ID de función no encontrado en la ruta.');
     }
 });
 </script>
 
-<style>
+<style scoped>
 body,
 h1,
 h2,
@@ -209,11 +195,14 @@ article {
 }
 
 .show-poster__button {
-    padding: 10px 20px;
-    background-color: #ffffff;
-    color: #1E3367;
+    padding: 12px 24px;
+    background-color: #1E3367;
+    color: #ffffff;
     cursor: pointer;
-}
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s; 
+} 
 
 .frame-information {
     display: flex;

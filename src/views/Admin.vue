@@ -1,59 +1,16 @@
-<script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import Section1 from '../components/Section1.vue'
-
-interface Funcion {
-    nombre: string;
-    imagenesArray: string[];
-    id: string;
-}
-
-const funcions = ref<Funcion[]>([]);
-
-const fetchFunciones = async () => {
-    try {
-        const response = await fetch('/api/funciones');
-        if (!response.ok) {
-            throw new Error('Error al obtener los datos de las funciones');
-        }
-        const data = await response.json();
-        funcions.value = data;
-    } catch (error) {
-        console.error('Error al obtener los datos de las funciones:', error);
-    }
-};
-
-onMounted(() => {
-    fetchFunciones();
-    
-});
-</script>
-    
 <template>
     <div class="margen-Boton">
         <RouterLink to="Admin/PanelAdmin"><button class="Boton-Admin">Panel de Administrador</button></RouterLink>
     </div>
-
-    <Section1>
-
-    </Section1>
-
+    <Section1></Section1>
     <article>
-                <section class="poster-container">
-                    <div v-for="funcion in funcions" :key="funcion.id" class='show-poster'>
-                        <div class='show-poster__image'>
-                            <img :src="funcion.imagenesArray && funcion.imagenesArray.length > 0 ? funcion.imagenesArray[0] : 'imagen-predeterminada.jpg'"
-                                alt="Imagen de la funcion" />
-                        </div>
-                        <div class='show-poster__details'>
-                            <h3 class='show-poster__details__title'>{{ funcion.nombre }}</h3>
-                            <RouterLink  :to="{ path: '/InfoFuncion/' + funcion.id }" class='show-poster__button'>ComprarEntradas</RouterLink>
-                        </div>
-                    </div>
-                </section>
-
-            </article>
+        <CartelIA></CartelIA>
+    </article>
 </template>
+<script setup lang="ts">
+    import Section1 from '../components/Section1.vue'
+    import CartelIA from '@/components/Cartel-IA.vue';
+</script>
 <style scoped>
 body,
 h1,
@@ -84,6 +41,7 @@ body {
         background-color: #1E3367;
         color: white;
         border-radius: 15px;
+        cursor: pointer;
     }
 
     article {
@@ -160,11 +118,13 @@ body {
 
 .poster-container {
     display: flex;
-    justify-content: space-evenly;
+    flex-wrap: wrap;
+    justify-content: center;
     background-color: white;
     padding: 20px;
-    margin: 20px;
-
+    margin: 0 auto;
+    gap: 20px;
+    max-width: 1200px;
 }
 
 .show-poster {
@@ -172,44 +132,43 @@ body {
     background-color: #1E3367;
     padding: 20px;
     width: 264px;
-    height: 400px;
-
+    height: auto; 
     border: #ffffff 2px solid;
+    border-radius: 10px;
     box-sizing: border-box;
-
-}
-
-.show-poster__image {
-    margin-bottom: 10px;
+    margin-bottom: 20px;
+    display: flex; 
+    flex-direction: column; 
+    justify-content: space-between; 
 }
 
 .show-poster__image img {
     width: 100%;
-    height: 20vh;
-}
-
-.poster__img {
-    height: 300px;
-    width: 100%;
-
+    height: 30vh; 
+    max-height: 300px; 
+    object-fit: cover; 
 }
 
 .show-poster__details {
     color: white;
-    font-size: smaller;
-    margin-top: 4vh;
-}
-
-.show-poster__title {
-    
-    margin-top: 3vh;
+    padding: 20px;
+    border-top: 2px solid white;
+    transition: transform 0.3s ease; 
 }
 
 .show-poster__button {
-    padding: 10px 20px;
+    padding: 12px 24px;
     background-color: #ffffff;
     color: #1E3367;
     cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s; 
+}
+
+.show-poster__button:hover {
+    background-color: #1E3367;
+    color: #ffffff;
 }
 
 

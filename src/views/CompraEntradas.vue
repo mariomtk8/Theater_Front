@@ -4,174 +4,110 @@
       <div class="main-block">
         <h1>Compra de entradas</h1>
       </div>
-      <section class="frame-function" v-if="funcion">
-        <div class="frame-function__poster">
-          <img :src="funcion.imagenesArray[0]" alt="Imagen de la obra">
-        </div>
-        <div class="frame-function__title">
-          <h2>{{ funcion.nombre }}</h2>
-        </div>
-      </section>
+      <FrameMain></FrameMain>
     </article>
-    <div ref="AsientosContainer" class="cinema-seats"></div>
+    <div ref="AsientosContainer" class="asientos-container"></div>
     <p id="total-price">Precio Total: 0 €</p>
-    <button id="buy-button" @click="comprarAsientos">Comprar</button>
+    <button id="buy-button" @click="realizarCompraYRecargarAsientos">Comprar</button>
   </main>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, nextTick } from 'vue';
+import FrameMain from '@/components/Frame-Main.vue';
+import { ref, onMounted, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
+import { useFuncionesStore } from '../store/CompraEntradas';
 
-interface Funcion {
-  nombre: string;
-  descripcion: string;
-  imagenesArray: string[];
-  actoresArray: string[];
-  fechasArray: string[];
-  id: string;
-}
-
-interface Asiento {
-  idAsiento: number;
-  isFree: boolean;
-}
-
-interface AsientoOcupado {
-  idAsiento: number;
-}
-
-const funcion = ref<Funcion | null>(null);
-let asientos = ref<Asiento[]>([]);
-const AsientosContainer = ref<HTMLElement | null>(null);
-const asientosSeleccionados = ref<Asiento[]>([]);
-let asientosOcupados = ref<AsientoOcupado[]>([]);
 const route = useRoute();
 const idFuncion = route.params.Id as string;
 const idSesion = route.query.idSesion as string;
+const AsientosContainer = ref<HTMLElement | null>(null);
+const store = useFuncionesStore();
 
+const asientosSeleccionados = ref(new Set<number>());
 onMounted(async () => {
-  await cargarAsientosOcupados(idFuncion, idSesion);
-  await cargarTodosLosAsientos();
+    await store.resetearYRecargarAsientos(idFuncion, idSesion);
+    await store.cargarAsientosOcupados(idFuncion, idSesion);
+    await store.cargarTodosLosAsientos();
+    nextTick(() => {
+        generarButacas();
+    });
 });
 
-async function cargarAsientosOcupados(idFuncion: string, idSesion: string) {
-  try {
-    const respuesta = await fetch(`/api/Funciones/${idFuncion}/Sesion/${idSesion}`);
-    if (respuesta.ok) {
-      const datosOcupados = await respuesta.json();
-      asientosOcupados.value = datosOcupados.map((asiento: any) => ({
-        idAsiento: asiento.idAsiento,
-        IsFree : false
-      }));
-    } else {
-      console.error("Error al cargar los asientos ocupados");
-    }
-  } catch (error) {
-    console.error("Error en la carga de asientos ocupados:", error);
-  }
-}
+const toggleSeatSelection = (asientoId: number) => {
+    const asiento = store.asientos.find(a => a.idAsiento === asientoId);
+    if (!asiento || !asiento.isFree) return;
 
-async function cargarTodosLosAsientos() {
-  try {
-    const respuesta = await fetch(`/api/Asientos`);
-    if (respuesta.ok) {
-      const datosAsientos = await respuesta.json();
-      asientos.value = datosAsientos.map((asiento: any) => ({
-        idAsiento: asiento.idAsiento,
-        isFree: !asientosOcupados.value.some(ocupado => ocupado.idAsiento === asiento.idAsiento)
-      }));
-      generarButacas();
+    if (asientosSeleccionados.value.has(asientoId)) {
+        asientosSeleccionados.value.delete(asientoId);
+        document.getElementById(`asiento-${asientoId}`)!.style.fill = '#00008B';
     } else {
-      console.error("Error al cargar todos los asientos");
+        asientosSeleccionados.value.add(asientoId);
+        document.getElementById(`asiento-${asientoId}`)!.style.fill = 'red';
     }
-  } catch (error) {
-    console.error("Error en la carga de todos los asientos:", error);
-  }
+    asientosSeleccionados.value = new Set(asientosSeleccionados.value);
+};
+
+const realizarCompra = async () => {
+
+const asientosParaComprar = Array.from(asientosSeleccionados.value).map(idAsiento => {
+    return { idAsiento, isFree: true };
+});
+if (asientosParaComprar.length > 0) {
+    await store.comprarAsientos(asientosParaComprar, idFuncion, idSesion);
+    asientosSeleccionados.value.clear();
+    await store.cargarAsientosOcupados(idFuncion, idSesion);
+    await store.cargarTodosLosAsientos();
 }
+};
 
 function generarButacas() {
-  const anchoAsiento = 40, altoAsiento = 40, espacioEntreAsientos = 10, espacioEntreFilas = 20;
-  const asientosPorFila = 6; 
-  const anchoSvg = asientosPorFila * (anchoAsiento + espacioEntreAsientos);
+    console.log('Generando butacas en componente Vue...');
+    const anchoAsiento = 40, altoAsiento = 40, espacioEntreAsientos = 10, espacioEntreFilas = 20;
+    const asientosPorFila = 6;
+    let svgHTML = `<svg width="${asientosPorFila * (anchoAsiento + espacioEntreAsientos)}" height="400">`;
 
-  let svgHTML = `<svg width="${anchoSvg}" height="400">`; 
-
-  asientos.value.forEach((asiento, index) => {
-    const fila = Math.floor(index / asientosPorFila);
-    const posAsiento = index % asientosPorFila;
-    const x = posAsiento * (anchoAsiento + espacioEntreAsientos);
-    const y = fila * (altoAsiento + espacioEntreFilas);
-    const color = asiento.isFree ? '#00008B' : 'red';
-
-    svgHTML += `<rect id="asiento-${asiento.idAsiento}" x="${x}" y="${y}" width="${anchoAsiento}" height="${altoAsiento}" style="stroke:black; fill:${color}"></rect>`;
-  });
-
-  svgHTML += '</svg>';
-
-  nextTick(() => {
-    if (AsientosContainer.value) {
-      AsientosContainer.value.innerHTML = svgHTML;
-      AsientosContainer.value.querySelectorAll('rect').forEach(rect => {
-        const idAsiento = parseInt(rect.id.replace('asiento-', ''));
-        const asientoActual = asientos.value.find(a => a.idAsiento === idAsiento);
-        if (asientoActual && asientoActual.isFree) {
-          rect.addEventListener('click', () => {
-            cambiarColor(rect); 
-          });
-        }
-      });
-    }
-  });
-}
-
-function cambiarColor(asiento: SVGElement) {
-  const idAsiento = parseInt(asiento.id.replace('asiento-', ''));
-
-  const indexSeleccionado = asientosSeleccionados.value.findIndex(a => a.idAsiento === idAsiento);
-
-  const estaOcupado = asientosOcupados.value.some(a => a.idAsiento === idAsiento);
-
-
-  if (estaOcupado) {
-    return;
-  }
-
-  if (indexSeleccionado > -1) {
-    asientosSeleccionados.value.splice(indexSeleccionado, 1);
-    asiento.style.fill = '#00008B';
-  } else {
-
-    asientosSeleccionados.value.push({ idAsiento, isFree: false });
-    asiento.style.fill = 'red';
-  }
-}
-
-async function comprarAsientos() {
-  try {
-    const url = `/api/Funciones/${idFuncion}/Sesion/${idSesion}/ReservarAsiento`;
-    const asientosParaEnviar = asientosSeleccionados.value.map(asiento => ({
-      idAsiento: asiento.idAsiento,
-      isFree: false
-    }));
-    const respuesta = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(asientosParaEnviar),
+    store.asientos.forEach((asiento, index) => {
+        const fila = Math.floor(index / asientosPorFila);
+        const posAsiento = index % asientosPorFila;
+        const x = posAsiento * (anchoAsiento + espacioEntreAsientos);
+        const y = fila * (altoAsiento + espacioEntreFilas);
+        const color = asiento.isFree ? '#00008B' : 'red';
+        const pathD = `M ${x + 10} ${y}, Q ${x} ${y + 10}, ${x + 10} ${y + 20}, L ${x + 30} ${y + 20}, Q ${x + 40} ${y + 10}, ${x + 30} ${y}, Z`;
+        svgHTML += `<path id="asiento-${asiento.idAsiento}" d="${pathD}" fill="${color}" stroke="black"></path>`;
     });
 
-    if (!respuesta.ok) {
-      throw new Error('Error en la reserva de asientos');
-    }
+    svgHTML += '</svg>';
 
-    console.log('Reserva realizada con éxito');
-    asientosSeleccionados.value = [];
-  } catch (error) {
-    console.error('Error al realizar la reserva:', error);
-  }
+    nextTick(() => {
+        if (AsientosContainer.value) {
+            AsientosContainer.value.innerHTML = svgHTML;
+            AsientosContainer.value.querySelectorAll('path[id^="asiento-"]').forEach(path => {
+                const htmlPath = path as HTMLElement; 
+                const idAsiento = parseInt(htmlPath.id.replace('asiento-', ''));
+                const asiento = store.asientos.find(a => a.idAsiento === idAsiento);
+                if (asiento) {
+                    htmlPath.addEventListener('click', () => {
+                        if (asiento.isFree) {
+                            toggleSeatSelection(idAsiento);
+                        } else {
+                            htmlPath.style.cursor = "not-allowed";
+                        }
+                    });
+                }
+            });
+            console.log('Butacas insertadas en el DOM');
+        } else {
+            console.error('El contenedor de Asientos no está disponible o no se ha encontrado en el DOM.');
+        }
+    });
 }
+
+
+const realizarCompraYRecargarAsientos = async () => {
+    await realizarCompra();
+    generarButacas();
+};
 </script>
     
   <style scoped>
@@ -186,12 +122,6 @@ async function comprarAsientos() {
     padding: 0;
     text-decoration: none;
   }
-  .asientos-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 35vh; /* O la altura deseada */
-}
   
   
   .article-block {
@@ -199,6 +129,11 @@ async function comprarAsientos() {
     justify-content: right;
     margin-top: 10vh;
     flex-direction: column;
+  }
+  .asientos-container{
+    display: flex;
+    justify-content: center;
+    margin-top: 15vh;
   }
   
   .main-block {
@@ -217,36 +152,6 @@ async function comprarAsientos() {
     margin-left: 20vh;
   }
   
-  /* Estilos del marco de la función */
-  .frame-function {
-    display: flex;
-    align-items: center;
-    background-color: #1E3367;
-    width: 800px;
-    height: 450px;
-    text-align: center;
-    max-width: 977px;
-    margin: auto;
-  }
-  
-  .frame-function__poster {
-    flex: 1;
-  }
-  
-  .frame-function__poster img {
-    width: 280px;
-  }
-  
-  .frame-function__title {
-    flex: 1;
-  }
-  
-  .frame-function__title h2 {
-    font-size: 30px;
-    color: white;
-  }
-  
-  /* Estilos del contenedor */
   #container {
     text-align: center;
   }
@@ -317,7 +222,7 @@ async function comprarAsientos() {
     margin: 5px;
     background-color: #bdc3c7;
     border-radius: 3px;
-    /* Opcional: para asientos redondeados */
+    
     display: block;
     cursor: pointer;
   }
@@ -350,47 +255,6 @@ async function comprarAsientos() {
     color: white;
     border: none;
     border-radius: 5px;
-  }
-  
-  /* Estilos del pie de página */
-  .footer {
-    margin-top: 10vh;
-    display: flex;
-    align-items: center;
-    background-color: #1E3367;
-    text-align: center;
-    width: 100%;
-    height: 25vh;
-  }
-  
-  .footer__logo {
-    flex: 0.7;
-    text-align: right;
-  }
-  
-  .footer__menu {
-    flex: 1;
-    text-align: center;
-  }
-  
-  .footer__menu a {
-    color: white;
-    margin-right: 2vh;
-  }
-  
-  .footer__networks {
-    flex: 0.7;
-    text-align: left;
-  }
-  
-  .footer__logo img {
-    width: 90px;
-    border-radius: 70px;
-  }
-  
-  .footer__networks img {
-    width: 40px;
-    margin-right: 4vh;
   }
   </style>
   
