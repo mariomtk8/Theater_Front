@@ -18,11 +18,37 @@ import { ref, onMounted, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import { useFuncionesStore } from '../store/CompraEntradas';
 
+
+
+interface Funcion {
+  nombre: string;
+  descripcion: string;
+  imagenesArray: string[];
+  actoresArray: string[];
+  fechasArray: string[];
+  id: string;
+}
+
+interface Asiento {
+  idAsiento: number;
+  isFree: boolean;
+}
+// interface asientosOcupados{
+//   idAsiento: number;
+// }
+
+const funcion = ref<Funcion | null>(null);
+const asientos = ref<Asiento[]>([]);
+const AsientosContainer = ref<HTMLElement | null>(null);
+const asientosSeleccionados = ref<Asiento[]>([]);
+let asientosOcupados = ref<Asiento[]>([]); // Cambié el tipo aquí para alinear con la estructura de Asiento
+
 const route = useRoute();
 const idFuncion = route.params.Id as string;
 const idSesion = route.query.idSesion as string;
 const AsientosContainer = ref<HTMLElement | null>(null);
 const store = useFuncionesStore();
+
 
 const asientosSeleccionados = ref(new Set<number>());
 onMounted(async () => {
@@ -58,23 +84,130 @@ if (asientosParaComprar.length > 0) {
     asientosSeleccionados.value.clear();
     await store.cargarAsientosOcupados(idFuncion, idSesion);
     await store.cargarTodosLosAsientos();
+
+async function cargarAsientosOcupados(idFuncion: string, idSesion: string) {
+  try {
+    const respuesta = await fetch(`/api/Funciones/${idFuncion}/Sesion/${idSesion}`);
+    if (respuesta.ok) {
+      const datosOcupados = await respuesta.json();
+      console.log(datosOcupados)
+      asientosOcupados.value = datosOcupados.map((asiento: any) => ({
+        idAsiento: asiento.idAsiento,
+        isFree: false // Aquí se cambió a false para indicar que estos asientos están ocupados
+      }));
+      
+    } else {
+      console.error("Error al cargar los asientos ocupados");
+    }
+  } catch (error) {
+    console.error("Error en la carga de asientos ocupados:", error);
+  }
+}
+
+async function cargarTodosLosAsientos() {
+    try {
+        const respuesta = await fetch(`/api/Asientos`);
+        if (respuesta.ok) {
+            const datosAsientos = await respuesta.json();
+            console.log(datosAsientos)
+            asientos.value = datosAsientos.map((asiento: any) => ({
+                idAsiento: asiento.idAsiento,
+                isFree: !asientosOcupados.value.some(ocupado => ocupado.idAsiento === asiento.idAsiento)
+            }));
+            nextTick(() => generarButacas()); // Actualizar la visualización de los asientos
+        } else {
+            console.error("Error al cargar todos los asientos");
+        }
+    } catch (error) {
+        console.error("Error en la carga de todos los asientos:", error);
+    }
+
 }
 };
 
 function generarButacas() {
+
     console.log('Generando butacas en componente Vue...');
     const anchoAsiento = 40, altoAsiento = 40, espacioEntreAsientos = 10, espacioEntreFilas = 20;
     const asientosPorFila = 6;
     let svgHTML = `<svg width="${asientosPorFila * (anchoAsiento + espacioEntreAsientos)}" height="400">`;
 
     store.asientos.forEach((asiento, index) => {
+
+    const anchoAsiento = 40, altoAsiento = 40, espacioEntreAsientos = 10, espacioEntreFilas = 20;
+    const asientosPorFila = 6; 
+    const anchoSvg = asientosPorFila * (anchoAsiento + espacioEntreAsientos);
+    let svgHTML = `<svg width="${anchoSvg}" height="400">`; 
+
+    asientos.value.forEach((asiento, index) => {
+
         const fila = Math.floor(index / asientosPorFila);
         const posAsiento = index % asientosPorFila;
         const x = posAsiento * (anchoAsiento + espacioEntreAsientos);
         const y = fila * (altoAsiento + espacioEntreFilas);
+
         const color = asiento.isFree ? '#00008B' : 'red';
         const pathD = `M ${x + 10} ${y}, Q ${x} ${y + 10}, ${x + 10} ${y + 20}, L ${x + 30} ${y + 20}, Q ${x + 40} ${y + 10}, ${x + 30} ${y}, Z`;
         svgHTML += `<path id="asiento-${asiento.idAsiento}" d="${pathD}" fill="${color}" stroke="black"></path>`;
+
+        const color = !asiento.isFree ? 'red' : '#00008B'; // Asegura que el color se asigna correctamente según el estado
+
+        svgHTML += `<rect id="asiento-${asiento.idAsiento}" x="${x}" y="${y}" width="${anchoAsiento}" height="${altoAsiento}" style="stroke:black; fill:${color}"></rect>`;
+    });
+
+    svgHTML += '</svg>';
+
+    nextTick(() => {
+        if (AsientosContainer.value) {
+            AsientosContainer.value.innerHTML = svgHTML;
+            AsientosContainer.value.querySelectorAll('rect').forEach(rect => {
+                const idAsiento = parseInt(rect.id.replace('asiento-', ''));
+                const asientoActual = asientos.value.find(a => a.idAsiento === idAsiento);
+                if (asientoActual) {
+                    rect.addEventListener('click', () => {
+                        cambiarColor(rect, asientoActual); // Pasar asientoActual como parámetro
+                    });
+                }
+            });
+        }
+    });
+}
+onMounted(async () => {
+  await cargarAsientosOcupados(idFuncion, idSesion);
+  await cargarTodosLosAsientos(); // Esto debe llamarse después y dentro de onMounted para asegurar que se usen los últimos datos.
+});
+
+function cambiarColor(asiento: SVGElement, asientoActual: Asiento) {
+  const idAsiento = asientoActual.idAsiento; // Usar el idAsiento del objeto asientoActual
+  const indexSeleccionado = asientosSeleccionados.value.findIndex(a => a.idAsiento === idAsiento);
+  const estaOcupado = asientosOcupados.value.some(a => a.idAsiento === idAsiento);
+
+  if (estaOcupado) {
+    return; // No hacer nada si el asiento está ocupado
+  }
+
+  if (indexSeleccionado > -1) {
+    asientosSeleccionados.value.splice(indexSeleccionado, 1);
+    asiento.style.fill = '#00008B'; // Devolver a color original si se deselecciona
+  } else {
+    asientosSeleccionados.value.push({ idAsiento, isFree: false });
+    asiento.style.fill = 'red'; // Cambiar a rojo si se selecciona
+  }
+}
+
+async function comprarAsientos() {
+  try {
+    const url = `/api/Funciones/${idFuncion}/Sesion/${idSesion}/ReservarAsiento`;
+    const asientosParaEnviar = asientosSeleccionados.value.map(asiento => ({
+      idAsiento: asiento.idAsiento,
+      isFree: false
+    }));
+    const respuesta = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(asientosParaEnviar),
     });
 
     svgHTML += '</svg>';
