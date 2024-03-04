@@ -13,7 +13,10 @@
 </template>
 
 <script setup lang="ts">
+<<<<<<< HEAD
 import FrameMain from '@/components/Frame-Main.vue';
+=======
+>>>>>>> f6fbbcaf9338cfe574855f8c89d39d3907ae94d9
 import { ref, onMounted, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import { useFuncionesStore } from '../store/CompraEntradas';
@@ -42,13 +45,17 @@ const asientos = ref<Asiento[]>([]);
 const AsientosContainer = ref<HTMLElement | null>(null);
 const asientosSeleccionados = ref<Asiento[]>([]);
 let asientosOcupados = ref<Asiento[]>([]); // Cambié el tipo aquí para alinear con la estructura de Asiento
+<<<<<<< HEAD
 
+=======
+>>>>>>> f6fbbcaf9338cfe574855f8c89d39d3907ae94d9
 const route = useRoute();
 const idFuncion = route.params.Id as string;
 const idSesion = route.query.idSesion as string;
 const AsientosContainer = ref<HTMLElement | null>(null);
 const store = useFuncionesStore();
 
+<<<<<<< HEAD
 
 const asientosSeleccionados = ref(new Set<number>());
 onMounted(async () => {
@@ -85,6 +92,8 @@ if (asientosParaComprar.length > 0) {
     await store.cargarAsientosOcupados(idFuncion, idSesion);
     await store.cargarTodosLosAsientos();
 
+=======
+>>>>>>> f6fbbcaf9338cfe574855f8c89d39d3907ae94d9
 async function cargarAsientosOcupados(idFuncion: string, idSesion: string) {
   try {
     const respuesta = await fetch(`/api/Funciones/${idFuncion}/Sesion/${idSesion}`);
@@ -121,11 +130,15 @@ async function cargarTodosLosAsientos() {
     } catch (error) {
         console.error("Error en la carga de todos los asientos:", error);
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> f6fbbcaf9338cfe574855f8c89d39d3907ae94d9
 }
 };
 
 function generarButacas() {
+<<<<<<< HEAD
 
     console.log('Generando butacas en componente Vue...');
     const anchoAsiento = 40, altoAsiento = 40, espacioEntreAsientos = 10, espacioEntreFilas = 20;
@@ -157,6 +170,25 @@ function generarButacas() {
 
     svgHTML += '</svg>';
 
+=======
+    const anchoAsiento = 40, altoAsiento = 40, espacioEntreAsientos = 10, espacioEntreFilas = 20;
+    const asientosPorFila = 6; 
+    const anchoSvg = asientosPorFila * (anchoAsiento + espacioEntreAsientos);
+    let svgHTML = `<svg width="${anchoSvg}" height="400">`; 
+
+    asientos.value.forEach((asiento, index) => {
+        const fila = Math.floor(index / asientosPorFila);
+        const posAsiento = index % asientosPorFila;
+        const x = posAsiento * (anchoAsiento + espacioEntreAsientos);
+        const y = fila * (altoAsiento + espacioEntreFilas);
+        const color = !asiento.isFree ? 'red' : '#00008B'; // Asegura que el color se asigna correctamente según el estado
+
+        svgHTML += `<rect id="asiento-${asiento.idAsiento}" x="${x}" y="${y}" width="${anchoAsiento}" height="${altoAsiento}" style="stroke:black; fill:${color}"></rect>`;
+    });
+
+    svgHTML += '</svg>';
+
+>>>>>>> f6fbbcaf9338cfe574855f8c89d39d3907ae94d9
     nextTick(() => {
         if (AsientosContainer.value) {
             AsientosContainer.value.innerHTML = svgHTML;

@@ -1,6 +1,7 @@
 <template>
   <div class="admin-panel">
     <h1>Panel de Administrador - Funciones de Teatro</h1>
+<<<<<<< HEAD
     <div v-for="funcion in funciones" :key="funcion.id" class="funcion-container">
       <h2>{{ funcion.nombre }}</h2>
       <p>{{ funcion.descripcion }}</p>
@@ -69,6 +70,34 @@
         <button @click="cancelarEdicion(funcion.id)">Cancelar</button>
       </div>
     </div>
+=======
+    <div v-for="funcion in funcions" :key="funcion.id" class="funcion-container">
+      <h2>{{ funcion.nombre }}</h2>
+      <p>{{ funcion.descripcion }}</p>
+      <p><strong>Autores:</strong> {{ funcion.autoresArray }}</p>
+      <p><strong>Duración:</strong> {{ funcion.duracion }} minutos</p>
+      <p><strong>Actores:</strong> {{ funcion.actoresArray }}</p>
+      <p><strong>Fechas:</strong> {{ funcion.fechasArray }}</p>
+      <div class="imagenes-container">
+        <img :src="funcion.cartel" alt="Imagen de la función">
+      </div>
+      <button @click="deleteFuncionById(funcion.id)">Eliminar Función</button>
+      <button @click="toggleEdit(funcion.id)">Editar Función</button>
+      <!-- Agregamos un div para mostrar los campos de edición -->
+      <div v-if="funcion.editing">
+        <input v-model="funcion.nombre" placeholder="Nombre">
+        <textarea v-model="funcion.descripcion" placeholder="Descripción"></textarea>
+        <input v-model="funcion.autoresArray" placeholder="Autores">
+        <input v-model="funcion.duracion" placeholder="Duración">
+        <input v-model="funcion.actoresArray" placeholder="Actores">
+        <input v-model="funcion.fechasArray" placeholder="Fechas">
+        <input v-model="funcion.cartel" placeholder="Cartel">
+        <!-- Agrega otros campos de edición según sea necesario -->
+        <button @click="guardarEdicion(funcion.id)">Guardar</button>
+        <button @click="cancelarEdicion(funcion.id)">Cancelar</button>
+      </div>
+    </div>
+>>>>>>> f6fbbcaf9338cfe574855f8c89d39d3907ae94d9
     <!-- Campos para agregar nueva función -->
     <div v-if="agregandoNuevaFuncion">
       <input v-model="nuevaFuncion.nombre" placeholder="Nombre">
@@ -87,6 +116,7 @@
 </template>
 
 <script setup lang="ts">
+<<<<<<< HEAD
 <<<<<<< HEAD
 import { onMounted, ref } from 'vue';
 import { useFuncionesStore } from '../store/PanelAdmin';
@@ -118,6 +148,8 @@ const toggleEdit = (id: number) => {
       funcion.editing = !funcion.editing;
     } else {
       funcion.editing = false;
+=======
+>>>>>>> f6fbbcaf9338cfe574855f8c89d39d3907ae94d9
 import { ref, onMounted } from 'vue';
 
 interface Funcion {
@@ -348,5 +380,8 @@ h1, h2 {
   border-radius: 5px;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> f6fbbcaf9338cfe574855f8c89d39d3907ae94d9
 </style>
