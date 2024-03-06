@@ -15,7 +15,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useLoginStore } from '../store/Login';
@@ -35,54 +35,60 @@ const login = async () => {
       router.push('/Index');
     }
   } catch (error) {
-    alert(`Error de login: ${error.message}`);
+    alert(`Error de login: ${error}`);
     console.error(error);
   }
 };
 </script>
+
 <style scoped>
-header{
+header {
   visibility: hidden;
 }
 
 .login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+form {
   max-width: 400px;
-  margin: 50px auto;
-  padding: 20px;
+  width: 100%;
+  padding: 40px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   background-color: #fff;
-}
-
-.login-container form {
-  display: flex;
-  flex-direction: column;
+  text-align: center;
 }
 
 label {
-  margin-bottom: 5px;
-  font-size: 16px;
+  margin-bottom: 10px;
+  font-size: 18px;
   font-weight: bold;
-  margin-right: 5vh;
 }
 
 input[type="text"],
 input[type="password"] {
-  padding: 10px;
-  margin-bottom: 20px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 15px;
+  margin-bottom: 30px;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  font-size: 18px;
+  width: 300px;
 }
 
 button {
   cursor: pointer;
   background-color: #1E3367;
   color: white;
-  padding: 15px 20px;
-  margin: 5px 0;
+  padding: 18px 30px;
+  margin: 10px 0;
   border: none;
-  border-radius: 4px;
-  transition: 0.3s;
+  border-radius: 6px;
+  font-size: 18px;
+  transition: background-color 0.3s;
 }
 
 button:hover {
@@ -95,6 +101,7 @@ button:hover {
   margin-top: 20px;
   text-decoration: none;
   color: #333;
+  font-size: 18px;
 }
 
 .nav__link:hover {

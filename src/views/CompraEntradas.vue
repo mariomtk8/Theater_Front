@@ -26,6 +26,7 @@ const store = useFuncionesStore();
 
 const asientosSeleccionados = ref(new Set<number>());
 const precioTotal = ref(0);
+const precioFijoAsiento = 10; 
 
 onMounted(async () => {
     await store.resetearYRecargarAsientos(idFuncion, idSesion);
@@ -42,35 +43,27 @@ const toggleSeatSelection = (asientoId: number) => {
 
     if (asientosSeleccionados.value.has(asientoId)) {
         asientosSeleccionados.value.delete(asientoId);
+        precioTotal.value -= precioFijoAsiento; 
         document.getElementById(`asiento-${asientoId}`)!.style.fill = '#00008B';
     } else {
         asientosSeleccionados.value.add(asientoId);
+        precioTotal.value += precioFijoAsiento; // Sumar precio al seleccionar
         document.getElementById(`asiento-${asientoId}`)!.style.fill = 'red';
     }
     asientosSeleccionados.value = new Set(asientosSeleccionados.value);
-    actualizarPrecioTotal();
-};
-
-const actualizarPrecioTotal = () => {
-    precioTotal.value = Array.from(asientosSeleccionados.value).reduce((total, asientoId) => {
-        const asiento = store.asientos.find(a => a.idAsiento === asientoId);
-        return total + (asiento ? asiento.precio : 0);
-    }, 0);
     document.getElementById('total-price')!.innerText = `Precio Total: ${precioTotal.value} €`;
 };
 
 const realizarCompra = async () => {
-    const asientosParaComprar = Array.from(asientosSeleccionados.value).map(idAsiento => {
-        return { idAsiento, isFree: true, precio: 5 };
-    });
+    const asientosParaComprar = Array.from(asientosSeleccionados.value).map(idAsiento => ({ idAsiento, isFree: true, precio: precioFijoAsiento }));
     if (asientosParaComprar.length > 0) {
         await store.comprarAsientos(asientosParaComprar, idFuncion, idSesion);
         alert(`Compra realizada con éxito. Total pagado: ${precioTotal.value} €`);
-        precioTotal.value = 0; // Reiniciar precio total
+        precioTotal.value = 0; 
         asientosSeleccionados.value.clear();
         await store.cargarAsientosOcupados(idFuncion, idSesion);
         await store.cargarTodosLosAsientos();
-        generarButacas(); // Actualizar asientos después de la compra
+        generarButacas(); 
     }
 };
 
@@ -116,7 +109,6 @@ function generarButacas() {
     });
 }
 
-
 const realizarCompraYRecargarAsientos = async () => {
     await realizarCompra();
     generarButacas();
@@ -140,7 +132,7 @@ const realizarCompraYRecargarAsientos = async () => {
   .article-block {
     display: flex;
     justify-content: right;
-    margin-top: 10vh;
+
     flex-direction: column;
   }
   .asientos-container{

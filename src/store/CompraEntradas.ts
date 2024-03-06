@@ -55,6 +55,7 @@ export const useFuncionesStore = defineStore('funciones', () => {
       asientos.splice(0, asientos.length, ...data.map((asiento: any) => ({
         idAsiento: asiento.idAsiento,
         isFree: !asientosOcupados.some(ocupado => ocupado.idAsiento === asiento.idAsiento),
+        precio: asiento.precio
       })));
     } catch (error) {
       console.error('Error al obtener todos los asientos:', error);
@@ -63,9 +64,9 @@ export const useFuncionesStore = defineStore('funciones', () => {
 
   async function comprarAsientos(asientosParaComprar: Asiento[], idFuncion: string, idSesion: string) {
     try {
-      const idsAsientosParaComprar = asientosParaComprar.map(asiento => asiento.idAsiento);
-      const payload = {
-        asientos: idsAsientosParaComprar
+      const idAsientos = asientosParaComprar.map(asiento => asiento.idAsiento);
+      const compra = {
+        asientos: idAsientos
       };
       const url = `/api/Funciones/${idFuncion}/Sesion/${idSesion}/ReservarAsiento`;
       const respuesta = await fetch(url, {
@@ -73,7 +74,7 @@ export const useFuncionesStore = defineStore('funciones', () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(compra),
       });
       if (!respuesta.ok) {
         throw new Error('Error en la compra de asientos');

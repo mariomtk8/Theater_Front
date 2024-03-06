@@ -75,10 +75,10 @@ body {
 }
 
 .circulo-externo {
-    width: 100px; /* Ajusta según necesidad */
+    width: 100px; 
     height: 100px;
     border-radius: 50%;
-    background-color: navy; /* O el color que prefieras */
+    background-color: navy; 
     display: flex;
     justify-content: center;
     align-items: center;
@@ -86,10 +86,10 @@ body {
 }
 
 .circulo-interno {
-    width: 80px; /* Ajusta según necesidad */
+    width: 80px;
     height: 80px;
     border-radius: 50%;
-    background-color: #1E3367; /* O el color que prefieras */
+    background-color: #1E3367; 
     position: relative;
     display: flex;
     align-items: center;
@@ -98,10 +98,10 @@ body {
 
 .cara {
     position: absolute;
-    width: 60%; /* Ajusta el tamaño para que se ajuste dentro del círculo */
+    width: 60%;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%); /* Centrado en X e Y */
+    transform: translate(-50%, -50%); 
     transition: transform 0.5s ease;
 }
 .Caretas{
@@ -110,24 +110,24 @@ body {
 }
 #cara-feliz {
     left: 50%;
-    transform: translate(-50%, -40%); /* Mueve hacia arriba en relación a su altura */
-    width: 180px; /* Mantén el tamaño original */
+    transform: translate(-50%, -40%);
+    width: 180px; 
 }
 
 #cara-triste {
     left: 50%;
-    width: 180px; /* Mantén el tamaño original */
-    transform: translate(-50%, -40%); /* Mueve hacia arriba en relación a su altura */
+    width: 180px; 
+    transform: translate(-50%, -40%); 
 }
 
-/* Añade estilos para las estrellas */
+
 .estrella {
     position: absolute;
-    width: 10px; /* O el tamaño que prefieras */
+    width: 10px; 
     height: 10px;
-    background-color: yellow; /* O el color de las estrellas */
+    background-color: yellow; 
     clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-    /* Posiciones específicas para cada estrella, mantén estas si están correctas */
+   
 }
 
 #estrella1 {

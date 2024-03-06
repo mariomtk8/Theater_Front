@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import Index from './views/Index.vue'
-import Header from './components/Header.vue'
-import Footer from './components/Footer.vue'
-import {RouterView} from 'vue-router'
+import { useRoute } from 'vue-router'; 
+import Header from './components/Header.vue';
+import Footer from './components/Footer.vue';
+import { RouterView } from 'vue-router';
+
+const route = useRoute(); 
 </script>
 
 <template>
-  <Header></Header>
+  
+  <Header v-if="route.name !== 'Login'"></Header>
   <main>
     <RouterView></RouterView>
   </main>
-  <Footer></Footer>
+  <Footer v-if="route.name !== 'Login'"></Footer>
 </template>
-
-

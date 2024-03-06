@@ -11,14 +11,6 @@
 
 <script setup lang="ts">
 import CartelIA from '@/components/Cartel-IA.vue';
-import { useProgramacion } from '../store/Programacion';
-import { onMounted } from 'vue'
-import { RouterLink } from 'vue-router'
-const store = useProgramacion()
-
-onMounted(() => {
-    store.fetchFunciones()
-})
 </script>
 
 
@@ -40,9 +32,20 @@ body {
     line-height: 1.6;
     overflow: auto;
 }
-.main-block h1 {
-    margin-left: 6vh;
+.main-block {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    width: 100%;
+    background-color: #1E3367;
+    height: 13vh;
+    margin-bottom: 10vh;
+}
+
+.main-block h1{
     color: white;
+    font-size: xx-large;
+    margin-left: 20vh;
 }
 
 .performance-block {
@@ -109,6 +112,10 @@ body {
 .title-posers_txt {
     font-size: xx-large;
 }
+.show-poster__image img {
+        width: 400px;
+    height: auto;
+    }
 
 @media screen and (max-width: 1150px) {
     .performance-block {
@@ -159,6 +166,7 @@ body {
 
     .show-poster__image {
         margin-bottom: 10px;
+        
     }
 }
 </style>

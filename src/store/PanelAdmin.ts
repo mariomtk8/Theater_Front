@@ -9,17 +9,29 @@ export interface Funcion {
   fechaUno?: string;
   fechaDos?: string;
   fechaTres?: string;
-  duracion: string;
+  duracion: number;
   cartel: string;
   id: number; 
   editing?: boolean; 
+}
+export interface FuncionDos {
+  nombre: string;
+  descripcion: string;
+  actores?: string;
+  autores?: string;
+  fechaUno?: string;
+  fechaDos?: string;
+  fechaTres?: string;
+  duracion: number;
+  cartel: string;
+  id: number;  
 }
 
 export const useFuncionesStore = defineStore('funcionesStore', () => {
   const apiUrl = '/api/Funciones'; 
   const funciones = reactive<Funcion[]>([]);
   
-  const convertirFechasParaBackend = (funcion: Funcion) => {
+  const convertirFechas = (funcion: Funcion) => {
     return {
       ...funcion,
       fechaUno: funcion.fechaUno ? new Date(funcion.fechaUno).toISOString() : null,
@@ -39,23 +51,27 @@ export const useFuncionesStore = defineStore('funcionesStore', () => {
     }
   };
 
-  const guardarFuncion = async (funcion: Funcion) => {
-    const funcionParaGuardar = convertirFechasParaBackend(funcion);
+  const guardarFuncion = async (funcion: FuncionDos) => {
+    const funcionParaGuardar = convertirFechas(funcion);
     try {
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(funcionParaGuardar),
-      });
-      if (!response.ok) throw new Error('Error al guardar la función');
-      await cargarFunciones();
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(funcionParaGuardar),
+        });
+
+        if (!response.ok) {
+            throw new Error('Error al guardar la función: ' + response.statusText);
+        }
+
+        await cargarFunciones();
     } catch (error) {
-      console.error('Error al guardar la función:', error);
+        console.error('Error al guardar la función:', error);
     }
-  };
+};
 
   const actualizarFuncion = async (funcion: Funcion) => {
-    const funcionParaActualizar = convertirFechasParaBackend(funcion);
+    const funcionParaActualizar = convertirFechas(funcion);
     try {
       const response = await fetch(`${apiUrl}/${funcion.id}`, {
         method: 'PUT',
@@ -69,7 +85,7 @@ export const useFuncionesStore = defineStore('funcionesStore', () => {
     }
   };
 
-  const borrarFuncion = async (id: string) => {
+  const borrarFuncion = async (id: number) => { 
     try {
       const response = await fetch(`${apiUrl}/${id}`, {
         method: 'DELETE',

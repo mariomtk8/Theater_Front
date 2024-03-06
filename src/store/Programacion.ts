@@ -20,7 +20,7 @@ export const useProgramacion = defineStore('listadoObras', () => {
       }
       const data = await response.json();
       funcions.value = data;
-      console.log("Funciones cargadas:", funcions.value); // Depuración adicional
+      console.log("Funciones cargadas:", funcions.value); 
     } catch (error) {
       console.error('Error al obtener los datos de las funciones:', error);
     }

@@ -1,4 +1,3 @@
-// LoginStore.ts
 import { defineStore } from 'pinia';
 
 export const useLoginStore = defineStore('login', {
@@ -14,7 +13,7 @@ export const useLoginStore = defineStore('login', {
           throw new Error('Network response was not ok.');
         }
         const data = await response.json();
-        this.user = data; // Actualizado: removido .value aquí porque Pinia maneja la reactividad
+        this.user = data; 
         return data;
       } catch (error) {
         console.error('Error logging in user', error);
@@ -28,7 +27,7 @@ export const useLoginStore = defineStore('login', {
           throw new Error('Network response was not ok.');
         }
         const data = await response.json();
-        this.admin = data; // Actualizado: removido .value aquí
+        this.admin = data; 
         return data;
       } catch (error) {
         console.error('Error logging in admin', error);
