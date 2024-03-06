@@ -12,6 +12,7 @@ interface Funcion {
 interface Asiento {
   idAsiento: number;
   isFree: boolean;
+  precio : number;
 }
 interface AsientoOcupado {
   idAsiento: number;

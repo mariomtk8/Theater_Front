@@ -25,6 +25,8 @@ const AsientosContainer = ref<HTMLElement | null>(null);
 const store = useFuncionesStore();
 
 const asientosSeleccionados = ref(new Set<number>());
+const precioTotal = ref(0);
+
 onMounted(async () => {
     await store.resetearYRecargarAsientos(idFuncion, idSesion);
     await store.cargarAsientosOcupados(idFuncion, idSesion);
@@ -46,19 +48,30 @@ const toggleSeatSelection = (asientoId: number) => {
         document.getElementById(`asiento-${asientoId}`)!.style.fill = 'red';
     }
     asientosSeleccionados.value = new Set(asientosSeleccionados.value);
+    actualizarPrecioTotal();
+};
+
+const actualizarPrecioTotal = () => {
+    precioTotal.value = Array.from(asientosSeleccionados.value).reduce((total, asientoId) => {
+        const asiento = store.asientos.find(a => a.idAsiento === asientoId);
+        return total + (asiento ? asiento.precio : 0);
+    }, 0);
+    document.getElementById('total-price')!.innerText = `Precio Total: ${precioTotal.value} €`;
 };
 
 const realizarCompra = async () => {
-
-const asientosParaComprar = Array.from(asientosSeleccionados.value).map(idAsiento => {
-    return { idAsiento, isFree: true };
-});
-if (asientosParaComprar.length > 0) {
-    await store.comprarAsientos(asientosParaComprar, idFuncion, idSesion);
-    asientosSeleccionados.value.clear();
-    await store.cargarAsientosOcupados(idFuncion, idSesion);
-    await store.cargarTodosLosAsientos();
-}
+    const asientosParaComprar = Array.from(asientosSeleccionados.value).map(idAsiento => {
+        return { idAsiento, isFree: true, precio: 5 };
+    });
+    if (asientosParaComprar.length > 0) {
+        await store.comprarAsientos(asientosParaComprar, idFuncion, idSesion);
+        alert(`Compra realizada con éxito. Total pagado: ${precioTotal.value} €`);
+        precioTotal.value = 0; // Reiniciar precio total
+        asientosSeleccionados.value.clear();
+        await store.cargarAsientosOcupados(idFuncion, idSesion);
+        await store.cargarTodosLosAsientos();
+        generarButacas(); // Actualizar asientos después de la compra
+    }
 };
 
 function generarButacas() {

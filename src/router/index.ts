@@ -9,11 +9,17 @@ import HorariosCompra from "../views/HorariosCompra.vue"
 import CompraEntradas from "../views/CompraEntradas.vue"
 import Admin from "../views/Admin.vue"
 import PanelAdmin from "../views/PanelAdmin.vue"
+import Login from "../views/Login.vue"
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
       {
         path: '/',
+        name: 'Login',
+        component: Login
+      },
+      {
+        path: '/Index',
         name: 'index',
         component: Index
       },

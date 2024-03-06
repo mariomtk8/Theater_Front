@@ -5,11 +5,10 @@
 <template>
   <header class="header">
     <div class="header__logo">
-      <RouterLink to="/">
+      <RouterLink to="/Index">
         <div class="logo">
             <div class="circulo-externo">
                 <div class="circulo-interno">
-                    <!-- Añadir estrellas dentro del círculo interno -->
                     <div class="estrella" id="estrella1"></div>
                     <div class="estrella" id="estrella2"></div>
                     <div class="estrella" id="estrella3"></div>
