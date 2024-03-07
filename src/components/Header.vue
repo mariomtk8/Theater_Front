@@ -1,23 +1,11 @@
-<script setup lang="ts">
-  import {RouterLink} from 'vue-router'
-</script>
-
 <template>
   <header class="header">
     <div class="header__logo">
       <RouterLink to="/Index">
         <div class="logo">
-            <div class="circulo-externo">
-                <div class="circulo-interno">
-                    <div class="estrella" id="estrella1"></div>
-                    <div class="estrella" id="estrella2"></div>
-                    <div class="estrella" id="estrella3"></div>
-                    <div class="Caretas">
-                    <img src="../assets/img/Careta-amarilla.png" class="cara" id="cara-feliz">
-                    <img src="../assets/img/Careta-Morada.png" class="cara" id="cara-triste">
-                    </div>
-                </div>
-            </div>
+          <canvas id="logoCanvas" width="200" height="200"></canvas>
+          <img src="../assets/img/Careta-amarilla.png" class="mask mask-yellow" />
+          <img src="../assets/img/Careta-Morada.png" class="mask mask-purple" />
         </div>
       </RouterLink>
     </div>
@@ -29,6 +17,81 @@
     </nav>
   </header>
 </template>
+
+<script setup lang="ts">
+import { onMounted, ref } from 'vue';
+import { RouterLink } from 'vue-router';
+
+const outerRadius = ref(0); 
+const innerRadius = ref(0); 
+const starRotation = ref(0); 
+
+onMounted(() => {
+  const canvas = document.getElementById('logoCanvas') as HTMLCanvasElement;
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  const drawCircles = () => {
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.fillStyle = 'navy';
+    ctx.beginPath();
+    ctx.arc(100, 100, outerRadius.value, 0, Math.PI * 2);
+    ctx.fill();
+
+  
+    ctx.fillStyle = '#1E3367';
+    ctx.beginPath();
+    ctx.arc(100, 100, innerRadius.value, 0, Math.PI * 2);
+    ctx.fill();
+  };
+
+  const animateCircles = () => {
+    
+    outerRadius.value += (50 - outerRadius.value) * 0.05;
+    innerRadius.value += (40 - innerRadius.value) * 0.05;
+
+    drawCircles(); 
+    requestAnimationFrame(animateCircles); 
+  };
+
+  const drawStar = (cx: number, cy: number, spikes: number, outerRadius: number, innerRadius: number, rotation: number) => {
+    const rot = Math.PI / 2 * 3;
+    let x, y, step = Math.PI / spikes;
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - outerRadius);
+    for (let i = 0; i < spikes; i++) {
+      x = cx + Math.cos(rot + rotation) * outerRadius;
+      y = cy + Math.sin(rot + rotation) * outerRadius;
+      ctx.lineTo(x, y);
+      rotation += step;
+
+      x = cx + Math.cos(rot + rotation) * innerRadius;
+      y = cy + Math.sin(rot + rotation) * innerRadius;
+      ctx.lineTo(x, y);
+      rotation += step;
+    }
+    ctx.lineTo(cx, cy - outerRadius);
+    ctx.closePath();
+    ctx.fillStyle = 'yellow';
+    ctx.fill();
+  };
+
+  const animateStars = () => {
+    starRotation.value += 0.01;
+    drawStar(105, 70, 5, 7, 3, starRotation.value);
+    drawStar(70, 115, 5, 7, 3, starRotation.value);
+    drawStar(140, 115, 5, 7, 3, starRotation.value);
+    requestAnimationFrame(animateStars);
+  };
+
+  animateCircles();
+  animateStars();
+});
+</script>
 
   <style scoped>
 body,
@@ -69,92 +132,26 @@ body {
     height: auto;
 }
 .logo {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  position: relative;
+  width: 200px; 
+  height: 200px; 
 }
 
-.circulo-externo {
-    width: 100px; 
-    height: 100px;
-    border-radius: 50%;
-    background-color: navy; 
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    animation: rotar 10s linear infinite;
+.mask {
+  position: absolute;
+  width: 190px;
+    height: 190px;
+    top: 58%;
+  left: 50%; 
+  transform: translate(-50%, -50%); 
 }
 
-.circulo-interno {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background-color: #1E3367; 
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.mask-yellow {
+  margin-top: 15px; 
 }
 
-.cara {
-    position: absolute;
-    width: 60%;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%); 
-    transition: transform 0.5s ease;
-}
-.Caretas{
-  display: flex;
-  justify-content: center;
-}
-#cara-feliz {
-    left: 50%;
-    transform: translate(-50%, -40%);
-    width: 180px; 
-}
-
-#cara-triste {
-    left: 50%;
-    width: 180px; 
-    transform: translate(-50%, -40%); 
-}
-
-
-.estrella {
-    position: absolute;
-    width: 10px; 
-    height: 10px;
-    background-color: yellow; 
-    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-   
-}
-
-#estrella1 {
-    top: 10%;
-    left: 50%;
-    transform: translate(-50%, -80%);
-}
-
-#estrella2 {
-    top: 90%;
-    left: 20%;
-    transform: translate(-50%, -80%);
-}
-
-#estrella3 {
-    top: 80%;
-    right: 20%;
-    transform: translate(50%, -80%);
-}
-
-@keyframes rotar {
-    from {transform: rotate(0deg);}
-    to {transform: rotate(360deg);}
-}
-
-.circulo-externo:hover .cara {
-    transform: scale(1.1);
+.mask-purple {
+  margin-top: -10px; 
 }
 
   .header__nav {
