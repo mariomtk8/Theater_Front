@@ -43,11 +43,11 @@ const toggleSeatSelection = (asientoId: number) => {
 
     if (asientosSeleccionados.value.has(asientoId)) {
         asientosSeleccionados.value.delete(asientoId);
-        precioTotal.value -= precioFijoAsiento; 
+        precioTotal.value -= precioFijoAsiento;
         document.getElementById(`asiento-${asientoId}`)!.style.fill = '#00008B';
     } else {
         asientosSeleccionados.value.add(asientoId);
-        precioTotal.value += precioFijoAsiento; // Sumar precio al seleccionar
+        precioTotal.value += precioFijoAsiento;
         document.getElementById(`asiento-${asientoId}`)!.style.fill = 'red';
     }
     asientosSeleccionados.value = new Set(asientosSeleccionados.value);
@@ -59,28 +59,39 @@ const realizarCompra = async () => {
     if (asientosParaComprar.length > 0) {
         await store.comprarAsientos(asientosParaComprar, idFuncion, idSesion);
         alert(`Compra realizada con éxito. Total pagado: ${precioTotal.value} €`);
-        precioTotal.value = 0; 
+        precioTotal.value = 0;
         asientosSeleccionados.value.clear();
         await store.cargarAsientosOcupados(idFuncion, idSesion);
         await store.cargarTodosLosAsientos();
-        generarButacas(); 
+        generarButacas();
     }
 };
 
 function generarButacas() {
     console.log('Generando butacas en componente Vue...');
-    const anchoAsiento = 40, altoAsiento = 40, espacioEntreAsientos = 10, espacioEntreFilas = 20;
+    const anchoAsiento = 40, altoAsiento = 40, espacioEntreAsientos = 10, espacioEntreFilas = 30;
     const asientosPorFila = 6;
-    let svgHTML = `<svg width="${asientosPorFila * (anchoAsiento + espacioEntreAsientos)}" height="400">`;
+    let svgHTML = `<svg width="${asientosPorFila * (anchoAsiento + espacioEntreAsientos)}" height="450">`;
+    
+    // Detalles del escenario
+    svgHTML += `<rect x="0" y="10" width="${asientosPorFila * (anchoAsiento + espacioEntreAsientos)}" height="50" fill="#8B4513" />`; 
+    svgHTML += `<text x="${(asientosPorFila * (anchoAsiento + espacioEntreAsientos)) / 2}" y="45" font-family="Arial" font-size="24" fill="white" border-radious text-anchor="middle">Escenario</text>`;
 
     store.asientos.forEach((asiento, index) => {
         const fila = Math.floor(index / asientosPorFila);
         const posAsiento = index % asientosPorFila;
         const x = posAsiento * (anchoAsiento + espacioEntreAsientos);
-        const y = fila * (altoAsiento + espacioEntreFilas);
-        const color = asiento.isFree ? '#00008B' : 'red';
-        const pathD = `M ${x + 10} ${y}, Q ${x} ${y + 10}, ${x + 10} ${y + 20}, L ${x + 30} ${y + 20}, Q ${x + 40} ${y + 10}, ${x + 30} ${y}, Z`;
-        svgHTML += `<path id="asiento-${asiento.idAsiento}" d="${pathD}" fill="${color}" stroke="black"></path>`;
+        const y = fila * (altoAsiento + espacioEntreFilas) + 100; 
+        const color = asiento.isFree ? '#00008B' : '#FF0000'; 
+        // Forma detallada de la butaca
+        const pathD = `M ${x + 8} ${y + 20} 
+                       Q ${x + 5} ${y + 10}, ${x + 10} ${y}
+                       L ${x + 30} ${y} 
+                       Q ${x + 35} ${y + 10}, ${x + 32} ${y + 20} 
+                       L ${x + 28} ${y + 30} 
+                       L ${x + 12} ${y + 30} Z`;
+        // Butacas con más detalles
+        svgHTML += `<path id="asiento-${asiento.idAsiento}" d="${pathD}" fill="${color}" stroke="black" stroke-width="2" style="cursor: pointer; transition: fill 0.5s ease;"></path>`;
     });
 
     svgHTML += '</svg>';
@@ -89,25 +100,18 @@ function generarButacas() {
         if (AsientosContainer.value) {
             AsientosContainer.value.innerHTML = svgHTML;
             AsientosContainer.value.querySelectorAll('path[id^="asiento-"]').forEach(path => {
-                const htmlPath = path as HTMLElement; 
-                const idAsiento = parseInt(htmlPath.id.replace('asiento-', ''));
-                const asiento = store.asientos.find(a => a.idAsiento === idAsiento);
-                if (asiento) {
-                    htmlPath.addEventListener('click', () => {
-                        if (asiento.isFree) {
-                            toggleSeatSelection(idAsiento);
-                        } else {
-                            htmlPath.style.cursor = "not-allowed";
-                        }
-                    });
-                }
+                path.addEventListener('click', () => {
+                    const asientoId = parseInt(path.id.replace('asiento-', ''));
+                    toggleSeatSelection(asientoId);
+                });
             });
-            console.log('Butacas insertadas en el DOM');
+            console.log('Butacas y escenario detallados insertados en el DOM');
         } else {
             console.error('El contenedor de Asientos no está disponible o no se ha encontrado en el DOM.');
         }
     });
 }
+
 
 const realizarCompraYRecargarAsientos = async () => {
     await realizarCompra();
@@ -138,7 +142,7 @@ const realizarCompraYRecargarAsientos = async () => {
   .asientos-container{
     display: flex;
     justify-content: center;
-    margin-top: 15vh;
+    margin-top: 2vh;
   }
   
   .main-block {

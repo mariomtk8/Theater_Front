@@ -114,8 +114,8 @@ const toggleAgregandoNuevaFuncion = () => {
 
 const guardarNuevaFuncion = () => {
 
-  const maxId = funciones.reduce((max, funcion) => Math.max(max, funcion.id), 0);
-  nuevaFuncion.value.id = maxId + 1;
+  // const maxId = funciones.reduce((max, funcion) => Math.max(max, funcion.id), 0);
+  // nuevaFuncion.value.id = maxId + 1;
   guardarFuncion(nuevaFuncion.value); 
   nuevaFuncion.value = { id: 0, nombre: '', descripcion: '', autores: '', duracion: 0, actores: '', fechaUno: '', fechaDos: '', fechaTres: '', cartel: '' }; 
   agregandoNuevaFuncion.value = false; 

@@ -1,7 +1,7 @@
 <template>
     <main>
       <section class="main-block">
-        <h1 class="main-block__title">Hosarios de la funcion</h1>
+        <h1 class="main-block__title">Horarios de la funcion</h1>
       </section>
       <FrameMain></FrameMain>
       <div id="container" class="information-container">
