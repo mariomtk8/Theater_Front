@@ -22,7 +22,7 @@ export const useFetchFuncion = defineStore('listadoObrasFuncion', () => {
         isLoading.value = true;
         error.value = null;
         try {
-            const response = await fetch(`/api/funciones/${idfuncion}`);
+            const response = await fetch(`http://localhost:8001/funciones/${idfuncion}`);
             if (!response.ok) {
                 
                 throw new Error(`Error al obtener los datos de la obra: status ${response.status}`);

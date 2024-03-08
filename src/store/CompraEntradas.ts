@@ -30,7 +30,7 @@ export const useFuncionesStore = defineStore('funciones', () => {
   async function cargarAsientosOcupados(idFuncion: string, idSesion: string) {
     console.log(`Cargando asientos ocupados para función: ${idFuncion}, sesión: ${idSesion}`);
     try {
-      const respuesta = await fetch(`/api/Funciones/${idFuncion}/Sesion/${idSesion}`);
+      const respuesta = await fetch(`http://localhost:8001/Funciones/${idFuncion}/Sesion/${idSesion}`);
       if (respuesta.ok) {
         const data = await respuesta.json();
         asientosOcupados.splice(0, asientosOcupados.length, ...data.map((idAsiento: number) => ({ idAsiento })));
@@ -47,7 +47,7 @@ export const useFuncionesStore = defineStore('funciones', () => {
   async function cargarTodosLosAsientos() {
     console.log('Cargando todos los asientos...');
     try {
-      const respuesta = await fetch(`/api/Asientos`);
+      const respuesta = await fetch(`http://localhost:8001/Asientos`);
       if (!respuesta.ok) {
         throw new Error('Error al obtener todos los asientos');
       }
@@ -68,7 +68,7 @@ export const useFuncionesStore = defineStore('funciones', () => {
       const compra = {
         asientos: idAsientos
       };
-      const url = `/api/Funciones/${idFuncion}/Sesion/${idSesion}/ReservarAsiento`;
+      const url = `http://localhost:8001/Funciones/${idFuncion}/Sesion/${idSesion}/ReservarAsiento`;
       const respuesta = await fetch(url, {
         method: 'POST',
         headers: {
