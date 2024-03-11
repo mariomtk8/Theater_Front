@@ -28,7 +28,7 @@ export interface FuncionDos {
 }
 
 export const useFuncionesStore = defineStore('funcionesStore', () => {
-  const apiUrl = 'http://localhost:8001/Funciones'; 
+  const apiUrl = 'http://a3407cd44c6db427eb6fd4e572e5b3ab-889807298.us-east-1.elb.amazonaws.com/Funciones'; 
   const funciones = reactive<Funcion[]>([]);
   
   const convertirFechas = (funcion: Funcion) => {

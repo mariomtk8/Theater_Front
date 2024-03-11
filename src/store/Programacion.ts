@@ -13,7 +13,7 @@ export const useProgramacion = defineStore('listadoObras', () => {
 
   const fetchFunciones = async () => {
     try {
-      const response = await fetch('http://localhost:8001/funciones/');
+      const response = await fetch('http://a3407cd44c6db427eb6fd4e572e5b3ab-889807298.us-east-1.elb.amazonaws.com/funciones/');
       console.log(response)
       if (!response.ok) {
         throw new Error('Error al obtener los datos de las funciones');

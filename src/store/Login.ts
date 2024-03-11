@@ -8,7 +8,7 @@ export const useLoginStore = defineStore('login', {
   actions: {
     async loginUser(username: string, password: string) {
       try {
-        const response = await fetch(`http://localhost:8001/Usuario/${username}/Contrasena/${password}`);
+        const response = await fetch(`http://a3407cd44c6db427eb6fd4e572e5b3ab-889807298.us-east-1.elb.amazonaws.com/Usuario/${username}/Contrasena/${password}`);
         if (!response.ok) {
           throw new Error('Network response was not ok.');
         }
@@ -22,7 +22,7 @@ export const useLoginStore = defineStore('login', {
     },
     async loginAdmin(username: string, password: string) {
       try {
-        const response = await fetch(`http://localhost:8001/Admin/${username}/Contrasena/${password}`);
+        const response = await fetch(`http://a3407cd44c6db427eb6fd4e572e5b3ab-889807298.us-east-1.elb.amazonaws.com/Admin/${username}/Contrasena/${password}`);
         if (!response.ok) {
           throw new Error('Network response was not ok.');
         }
