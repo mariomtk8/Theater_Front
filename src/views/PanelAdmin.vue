@@ -46,6 +46,7 @@
       <div class="new-function-form">
         <input v-model="nuevaFuncion.nombre" placeholder="Nombre" class="input-field">
         <textarea v-model="nuevaFuncion.descripcion" placeholder="Descripción" class="input-field"></textarea>
+        <textarea v-model="nuevaFuncion.imagenes" placeholder="Imagenes" class="input-field"></textarea>
         <input v-model="nuevaFuncion.autores" placeholder="Autores" class="input-field">
         <input v-model="nuevaFuncion.duracion" placeholder="Duración" class="input-field">
         <input v-model="nuevaFuncion.actores" placeholder="Actores" class="input-field">
@@ -74,6 +75,7 @@ const nuevaFuncion = ref<Funcion>({
   id: 0, 
   nombre: '',
   descripcion: '',
+  imagenes: '',
   autores: '',
   duracion: 0,
   actores: '',
@@ -120,7 +122,7 @@ const guardarNuevaFuncion = () => {
   agregandoNuevaFuncion.value = false; 
 };
 const cancelarNuevaFuncion = () => {
-  nuevaFuncion.value = { id: 0, nombre: '', descripcion: '', autores: '', duracion: 0, actores: '', fechaUno: '', fechaDos: '', fechaTres: '', cartel: '' }; 
+  nuevaFuncion.value = { id: 0, nombre: '', descripcion: '',imagenes:'', autores: '', duracion: 0, actores: '', fechaUno: '', fechaDos: '', fechaTres: '', cartel: '' };
   agregandoNuevaFuncion.value = false; 
 };
 </script>

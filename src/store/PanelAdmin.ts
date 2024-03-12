@@ -4,6 +4,7 @@ import { reactive } from 'vue';
 export interface Funcion {
   nombre: string;
   descripcion: string;
+  imagenes: string;
   actores?: string;
   autores?: string;
   fechaUno?: string;
@@ -17,6 +18,7 @@ export interface Funcion {
 export interface FuncionDos {
   nombre: string;
   descripcion: string;
+  imagenes: string;
   actores?: string;
   autores?: string;
   fechaUno?: string;

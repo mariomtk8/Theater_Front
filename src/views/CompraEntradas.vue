@@ -90,7 +90,7 @@ function generarButacas() {
                        Q ${x + 35} ${y + 10}, ${x + 32} ${y + 20} 
                        L ${x + 28} ${y + 30} 
                        L ${x + 12} ${y + 30} Z`;
-        // Butacas con más detalles
+        
         svgHTML += `<path id="asiento-${asiento.idAsiento}" d="${pathD}" fill="${color}" stroke="black" stroke-width="2" style="cursor: pointer; transition: fill 0.5s ease;"></path>`;
     });
 
