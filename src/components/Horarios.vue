@@ -1,16 +1,52 @@
 <template>
-  <main>
-    <section class="main-block">
-      <h1 class="main-block__title">Horarios de la funcion</h1>
-    </section>
-    <FrameMain></FrameMain>
-    <Horarios></Horarios>
-  </main>
-</template>
+      <div id="container" class="information-container">
+        <h2 class="information-title">Información de Fechas y Horas</h2>
+        <div class="container-frame">
+  <ul class="horarios-txt__list">
+    <li v-if="store.funcion?.fechaUno" class="horarios-txt__item">
+      {{ store.funcion.fechaUno }}
+      <RouterLink v-if="store.funcion && store.funcion.id" :to="{
+        path: '/CompraEntradas/' + store.funcion.id,
+        query: { idSesion: 1 }
+      }" class="show-poster__button">Comprar</RouterLink>
+    </li>
+    <li v-if="store.funcion?.fechaDos" class='horarios-txt__item'>
+      {{ store.funcion.fechaDos }}
+      <RouterLink v-if="store.funcion && store.funcion.id" :to="{
+        path: '/CompraEntradas/' + store.funcion.id,
+        query: { idSesion: 2 }
+      }" class="show-poster__button">Comprar</RouterLink>
+    </li>
+    <li v-if="store.funcion?.fechaTres" class='horarios-txt__item'>
+            {{ store.funcion.fechaTres }}
+      <RouterLink v-if="store.funcion && store.funcion.id" :to="{
+        path: '/CompraEntradas/' + store.funcion.id,
+        query: { idSesion: 3 }
+      }" class="show-poster__button">Comprar</RouterLink>
+    </li>
+  </ul>
+</div>
+      </div>
+    
+  </template>
 
 <script setup lang="ts">
-import FrameMain from '@/components/Frame-Main.vue';
-import Horarios from '@/components/Horarios.vue';
+import { onMounted, nextTick } from 'vue';
+import { useRoute } from 'vue-router';
+import { useFetchFuncion } from '../store/InfoFuncion';
+
+const store = useFetchFuncion();
+const route = useRoute();
+
+onMounted(async () => {
+  await nextTick(); 
+  const idfuncion = route.params.Id as string;
+  if (idfuncion) {
+      await store.fetchFunciones(idfuncion);
+  } else {
+      console.error('ID de función no encontrado en la ruta.');
+  }
+});
 </script>
 
 <style scoped>

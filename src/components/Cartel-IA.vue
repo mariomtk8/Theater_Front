@@ -77,6 +77,10 @@ onMounted(() => {
     border-radius: 5px;
     transition: background-color 0.3s, color 0.3s; 
 }
+.show-poster__button_ref{
+    text-decoration: none;
+}
+
 
 .show-poster__button:hover {
     background-color: #1E3367;

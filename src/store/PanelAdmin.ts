@@ -34,11 +34,22 @@ export const useFuncionesStore = defineStore('funcionesStore', () => {
   const funciones = reactive<Funcion[]>([]);
   
   const convertirFechas = (funcion: Funcion) => {
+    const formatarFecha = (fecha: string | undefined): string | null => {
+      if (!fecha) return null;
+      const date = new Date(fecha);
+      const year = date.getFullYear();
+      const month = ('0' + (date.getMonth() + 1)).slice(-2);
+      const day = ('0' + date.getDate()).slice(-2);
+      const hours = ('0' + date.getHours()).slice(-2);
+      const minutes = ('0' + date.getMinutes()).slice(-2);
+      return `${year}-${month}-${day} ${hours}:${minutes}`;
+    };
+
     return {
       ...funcion,
-      fechaUno: funcion.fechaUno ? new Date(funcion.fechaUno).toISOString() : null,
-      fechaDos: funcion.fechaDos ? new Date(funcion.fechaDos).toISOString() : null,
-      fechaTres: funcion.fechaTres ? new Date(funcion.fechaTres).toISOString() : null,
+      fechaUno: formatarFecha(funcion.fechaUno),
+      fechaDos: formatarFecha(funcion.fechaDos),
+      fechaTres: formatarFecha(funcion.fechaTres),
     };
   };
 
@@ -47,7 +58,7 @@ export const useFuncionesStore = defineStore('funcionesStore', () => {
       const response = await fetch(apiUrl);
       if (!response.ok) throw new Error('Error al cargar las funciones');
       const data = await response.json();
-      funciones.splice(0, funciones.length, ...data);
+      funciones.splice(0, funciones.length, ...data.map((funcion: Funcion) => convertirFechas(funcion)));
     } catch (error) {
       console.error('Error al cargar las funciones:', error);
     }

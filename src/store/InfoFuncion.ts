@@ -28,13 +28,27 @@ export const useFetchFuncion = defineStore('listadoObrasFuncion', () => {
                 throw new Error(`Error al obtener los datos de la obra: status ${response.status}`);
             }
             const data: Funcion = await response.json();
+            if (data.fechaUno) data.fechaUno = formatarFecha(data.fechaUno);
+            if (data.fechaDos) data.fechaDos = formatarFecha(data.fechaDos);
+            if (data.fechaTres) data.fechaTres = formatarFecha(data.fechaTres);
             funcion.value = data;
         } catch (err) {
-            
             error.value = err instanceof Error ? err.message : 'Error desconocido';
         } finally {
             isLoading.value = false;
         }
+    };
+
+    // Función para formatear la fecha
+    const formatarFecha = (fecha: string): string => {
+        const date = new Date(fecha);
+        const year = date.getFullYear();
+        const month = ('0' + (date.getMonth() + 1)).slice(-2);
+        const day = ('0' + date.getDate()).slice(-2);
+        const hours = ('0' + date.getHours()).slice(-2);
+        const minutes = ('0' + date.getMinutes()).slice(-2);
+        const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}`;
+        return formattedDate;
     };
 
     return {

@@ -46,7 +46,7 @@
       <div class="new-function-form">
         <input v-model="nuevaFuncion.nombre" placeholder="Nombre" class="input-field">
         <textarea v-model="nuevaFuncion.descripcion" placeholder="Descripción" class="input-field"></textarea>
-        <textarea v-model="nuevaFuncion.imagenes" placeholder="Imagenes" class="input-field"></textarea>
+        <input v-model="nuevaFuncion.imagenes" placeholder="Imagenes" class="input-field">
         <input v-model="nuevaFuncion.autores" placeholder="Autores" class="input-field">
         <input v-model="nuevaFuncion.duracion" placeholder="Duración" class="input-field">
         <input v-model="nuevaFuncion.actores" placeholder="Actores" class="input-field">
@@ -119,6 +119,7 @@ const guardarNuevaFuncion = () => {
   // const maxId = funciones.reduce((max, funcion) => Math.max(max, funcion.id), 0);
   // nuevaFuncion.value.id = maxId + 1;
   guardarFuncion(nuevaFuncion.value); 
+  nuevaFuncion.value = { id: 0, nombre: '', descripcion: '',imagenes:'', autores: '', duracion: 0, actores: '', fechaUno: '', fechaDos: '', fechaTres: '', cartel: '' }; 
   agregandoNuevaFuncion.value = false; 
 };
 const cancelarNuevaFuncion = () => {
