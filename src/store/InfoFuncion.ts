@@ -47,7 +47,7 @@ export const useFetchFuncion = defineStore('listadoObrasFuncion', () => {
         const day = ('0' + date.getDate()).slice(-2);
         const hours = ('0' + date.getHours()).slice(-2);
         const minutes = ('0' + date.getMinutes()).slice(-2);
-        const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}`;
+        const formattedDate = `${day}-${month}-${year} ${hours}:${minutes}`;
         return formattedDate;
     };
 

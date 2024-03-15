@@ -36,7 +36,7 @@ npm run dev
 ### Type-Check, Compile and Minify for Production
 
 npm install vue-router@4
-
+npm install sweetalert2
 
 ```sh
 npm run build

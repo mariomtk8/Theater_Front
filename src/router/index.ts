@@ -10,6 +10,7 @@ import CompraEntradas from "../views/CompraEntradas.vue"
 import Admin from "../views/Admin.vue"
 import PanelAdmin from "../views/PanelAdmin.vue"
 import Login from "../views/Login.vue"
+import Tarjeta from "../views/Tarjeta.vue"
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
@@ -70,6 +71,11 @@ const router = createRouter({
   path: '/Admin/PanelAdmin',
   name: 'PanelAdmin',
   component: PanelAdmin
+},
+{
+  path: '/Tarjeta/:Id',
+  name: 'Tarjeta',
+  component: Tarjeta
 }
 
     ]

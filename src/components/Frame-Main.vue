@@ -1,21 +1,33 @@
 <template>
-    <section class="frame-function" v-if="store.funcion">
-        <div class="frame-function__poster">
-          <img :src="store.funcion.imagenes.split(',')[0]" alt="Imagen de la obra" v-if="store.funcion.imagenes" />
-        </div>
-        <div class="frame-function__title">
-          <h2>{{ store.funcion.nombre }}</h2>
-        </div>
-      </section>
+  <section class="frame-function" v-if="store.funcion">
+    <div class="frame-function__poster">
+      <img :src="store.funcion.imagenes.split(',')[0]" alt="Imagen de la obra" v-if="store.funcion.imagenes" />
+    </div>
+    <div class="frame-function__title">
+      <h2>{{ store.funcion.nombre }}</h2>
+    </div>
+    <div class="frame-function__date">
+      <p class="fechas" v-if="idSesion === '3'">
+        Fecha: {{ store.funcion.fechaTres }}
+      </p>
+      <p class="fechas" v-if="idSesion === '2'">
+        Fecha: {{ store.funcion.fechaDos }}
+      </p>
+      <p class="fechas" v-if="idSesion === '1'">
+        Fecha: {{ store.funcion.fechaUno }}
+      </p>
+    </div>
+  </section>
 </template>
 
 <script setup lang="ts">
-import { onMounted, nextTick } from 'vue';
+import { computed,onMounted, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import { useFetchFuncion } from '../store/InfoFuncion';
 
 const store = useFetchFuncion();
 const route = useRoute();
+  const idSesion = computed(() => route.query.idSesion as string);
 
 onMounted(async () => {
     await nextTick();
@@ -56,9 +68,18 @@ onMounted(async () => {
     height: 360px;
     border-radius: 5px; 
   }
+  .fechas{
+    font-size: 27px;
+  }
+
+  .frame-function__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+  }
   
   .frame-function__title {
-    flex: 1;
     display: flex; 
     align-items: center; 
     justify-content: center; 
@@ -67,8 +88,17 @@ onMounted(async () => {
   
   .frame-function__title h2 {
     font-size: 30px;
-    color: white;
+    color: gold;
     margin: 0; 
     text-shadow: 2px 2px 4px rgba(0,0,0,0.5); 
+  }
+
+  .frame-function__date {
+    font-size: 18px;
+    color: white;
+  }
+
+  .frame-function__date span {
+    font-weight: bold;
   }
 </style>
