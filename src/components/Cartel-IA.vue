@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-    import { useProgramacion } from '../store/Programacion';
+import { useProgramacion } from '../store/Programacion';
 import { onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 const store = useProgramacion()
@@ -80,7 +80,6 @@ onMounted(() => {
 .show-poster__button_ref{
     text-decoration: none;
 }
-
 
 .show-poster__button:hover {
     background-color: #1E3367;

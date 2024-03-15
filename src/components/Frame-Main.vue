@@ -43,62 +43,60 @@ onMounted(async () => {
 <style scoped>
   .frame-function {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-around; 
     background-color: #1E3367;
-    width: 80%; 
+    width: 80%;
     max-width: 977px;
-    height: 450px;
+    height: auto;
     text-align: center;
-    margin: 20px auto; 
-    border-radius: 10px; 
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
-    padding: 20px; 
+    margin: 20px auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 20px;
   }
-  
-  .frame-function__poster {
-    flex: 1;
-    display: flex;
-    align-items: center; 
-    justify-content: center; 
-  }
-  
+
   .frame-function__poster img {
-    width: 320px;
-    height: 360px;
-    border-radius: 5px; 
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
   }
-  .fechas{
+
+  .fechas {
     font-size: 27px;
   }
 
   .frame-function__content {
-    flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: space-around;
+    margin-top: 20px;
   }
-  
-  .frame-function__title {
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    padding: 0 20px; 
-  }
-  
+
   .frame-function__title h2 {
     font-size: 30px;
     color: gold;
-    margin: 0; 
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5); 
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
   }
 
   .frame-function__date {
     font-size: 18px;
     color: white;
+    margin-top: 10px;
   }
 
   .frame-function__date span {
     font-weight: bold;
+  }
+
+  @media (max-width: 600px) {
+    .frame-function__poster {
+      order: 2; 
+    }
+
+    .frame-function__content {
+      margin-top: 0;
+    }
   }
 </style>

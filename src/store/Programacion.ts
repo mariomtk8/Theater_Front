@@ -5,6 +5,8 @@ import { ref, onMounted } from 'vue';
 interface Funcion {
   nombre?: string;
   imagenes: string;
+  descripcion: string;
+  cartel: string;
   id?: string;
 }
 
