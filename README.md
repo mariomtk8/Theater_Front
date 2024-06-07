@@ -37,7 +37,9 @@ npm run dev
 
 npm install vue-router@4
 npm install sweetalert2
+npm install jspdf
 
 ```sh
 npm run build
 ```
+http://a3407cd44c6db427eb6fd4e572e5b3ab-889807298.us-east-1.elb.amazonaws.com

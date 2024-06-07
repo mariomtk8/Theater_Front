@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref,reactive, nextTick } from 'vue';
+import { ref, reactive } from 'vue';
 import { useRoute } from 'vue-router';
 
 interface Funcion {
@@ -14,9 +14,9 @@ interface Funcion {
 
 interface Asiento {
   idAsiento: number;
-  isFree: boolean;
-  precio : number;
+  precio: number;
 }
+
 interface AsientoOcupado {
   idAsiento: number;
 }
@@ -26,19 +26,19 @@ export const useFuncionesStore = defineStore('funciones', () => {
   const funcion = ref<Funcion | null>(null);
   const asientos = reactive<Asiento[]>([]);
   const AsientosContainer = ref<HTMLElement | null>(null);
-  const asientosSeleccionados = reactive<Asiento[]>([]);
-  const  asientosOcupados = reactive<AsientoOcupado[]>([]);
+  const asientosSeleccionados = reactive<number[]>([]);
+  const asientosOcupados = reactive<AsientoOcupado[]>([]);
   const route = useRoute();
 
   async function cargarAsientosOcupados(idFuncion: string, idSesion: string) {
     console.log(`Cargando asientos ocupados para función: ${idFuncion}, sesión: ${idSesion}`);
     try {
-      const respuesta = await fetch(`http://a3407cd44c6db427eb6fd4e572e5b3ab-889807298.us-east-1.elb.amazonaws.com/Funciones/${idFuncion}/Sesion/${idSesion}`);
+      const respuesta = await fetch(`/api/Funciones/${idFuncion}/Sesion/${idSesion}/AsientosDisponibles`);
       if (respuesta.ok) {
         const data = await respuesta.json();
         asientosOcupados.splice(0, asientosOcupados.length, ...data.map((idAsiento: number) => ({ idAsiento })));
       } else if (respuesta.status === 404) {
-        asientosOcupados.splice(0, asientosOcupados.length); 
+        asientosOcupados.splice(0, asientosOcupados.length);
       } else {
         throw new Error('Error al obtener asientos ocupados');
       }
@@ -47,33 +47,27 @@ export const useFuncionesStore = defineStore('funciones', () => {
     }
   }
 
-  async function cargarTodosLosAsientos() {
+  async function cargarTodosLosAsientos(idFuncion: string, idSesion: string) {
     console.log('Cargando todos los asientos...');
     try {
-      const respuesta = await fetch(`http://a3407cd44c6db427eb6fd4e572e5b3ab-889807298.us-east-1.elb.amazonaws.com/Asientos`);
-      if (!respuesta.ok) {
-        throw new Error('Error al obtener todos los asientos');
-      }
-      const data = await respuesta.json();
-      asientos.splice(0, asientos.length, ...data.map((asiento: any) => ({
-        idAsiento: asiento.idAsiento,
-        isFree: !asientosOcupados.some(ocupado => ocupado.idAsiento === asiento.idAsiento),
-        precio: asiento.precio
+      const totalAsientos = 40;
+      asientos.splice(0, asientos.length, ...Array.from({ length: totalAsientos }, (_, i) => ({
+        idAsiento: i + 1,
+        precio: 10
       })));
     } catch (error) {
       console.error('Error al obtener todos los asientos:', error);
     }
   }
 
-  async function comprarAsientos(asientosParaComprar: Asiento[], idFuncion: string, idSesion: string) {
+  async function comprarAsientos(asientosParaComprar: number[], idFuncion: string, idSesion: string) {
     try {
-      const idAsientos = asientosParaComprar.map(asiento => asiento.idAsiento);
       const compra = {
-        asientos: idAsientos
+        asientos: asientosParaComprar
       };
-      const url = `http://a3407cd44c6db427eb6fd4e572e5b3ab-889807298.us-east-1.elb.amazonaws.com/Funciones/${idFuncion}/Sesion/${idSesion}/ReservarAsiento`;
+      const url = `/api/Funciones/${idFuncion}/Sesion/${idSesion}/ReservarAsiento`;
       const respuesta = await fetch(url, {
-        method: 'POST',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -85,41 +79,42 @@ export const useFuncionesStore = defineStore('funciones', () => {
       console.log('Compra realizada con éxito');
   
       await cargarAsientosOcupados(idFuncion, idSesion);
-      await cargarTodosLosAsientos();
+      await cargarTodosLosAsientos(idFuncion, idSesion);
     } catch (error) {
       console.error('Error al realizar la compra:', error);
     }
   }
+
   async function resetearYRecargarAsientos(idFuncion: string, idSesion: string) {
     asientosOcupados.splice(0, asientosOcupados.length); 
     await cargarAsientosOcupados(idFuncion, idSesion);
-    await cargarTodosLosAsientos();
+    await cargarTodosLosAsientos(idFuncion, idSesion);
   }
 
   const isLoading = ref(false);
-    const error = ref<string | null>(null);
+  const error = ref<string | null>(null);
+
   const fetchFunciones = async (idfuncion: string) => {
     isLoading.value = true;
     error.value = null;
     try {
-        const response = await fetch(`http://a3407cd44c6db427eb6fd4e572e5b3ab-889807298.us-east-1.elb.amazonaws.com/funciones/${idfuncion}`);
-        if (!response.ok) {
-            throw new Error(`Error al obtener los datos de la obra: status ${response.status}`);
-        }
-        const data: Funcion = await response.json();
-        if (data.fechaUno) data.fechaUno = formatarFecha(data.fechaUno);
-        if (data.fechaDos) data.fechaDos = formatarFecha(data.fechaDos);
-        if (data.fechaTres) data.fechaTres = formatarFecha(data.fechaTres);
-        funcion.value = data;
+      const response = await fetch(`/api/funciones/${idfuncion}`);
+      if (!response.ok) {
+        throw new Error(`Error al obtener los datos de la obra: status ${response.status}`);
+      }
+      const data: Funcion = await response.json();
+      if (data.fechaUno) data.fechaUno = formatarFecha(data.fechaUno);
+      if (data.fechaDos) data.fechaDos = formatarFecha(data.fechaDos);
+      if (data.fechaTres) data.fechaTres = formatarFecha(data.fechaTres);
+      funcion.value = data;
     } catch (err) {
-        error.value = err instanceof Error ? err.message : 'Error desconocido';
+      error.value = err instanceof Error ? err.message : 'Error desconocido';
     } finally {
-        isLoading.value = false;
+      isLoading.value = false;
     }
-};
+  };
 
-// Función para formatear la fecha
-const formatarFecha = (fecha: string): string => {
+  const formatarFecha = (fecha: string): string => {
     const date = new Date(fecha);
     const year = date.getFullYear();
     const month = ('0' + (date.getMonth() + 1)).slice(-2);
@@ -128,7 +123,19 @@ const formatarFecha = (fecha: string): string => {
     const minutes = ('0' + date.getMinutes()).slice(-2);
     const formattedDate = `${day}-${month}-${year} ${hours}:${minutes}`;
     return formattedDate;
-};
+  };
 
-  return { funcion, asientos,storeObras,fetchFunciones,resetearYRecargarAsientos, AsientosContainer, asientosSeleccionados, cargarAsientosOcupados, cargarTodosLosAsientos, comprarAsientos};
+  return {
+    funcion,
+    asientos,
+    storeObras,
+    fetchFunciones,
+    resetearYRecargarAsientos,
+    AsientosContainer,
+    asientosSeleccionados,
+    asientosOcupados, 
+    cargarAsientosOcupados,
+    cargarTodosLosAsientos,
+    comprarAsientos
+  };
 });

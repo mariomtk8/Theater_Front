@@ -2,7 +2,7 @@
     <body>
         <main class="main">
             <div class="main-block">
-                <h1>Programación</h1>
+                <h1>{{ $t('navigation.program') }}</h1>
             </div>
             <CartelIA></CartelIA>
         </main>

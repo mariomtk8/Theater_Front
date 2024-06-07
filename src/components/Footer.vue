@@ -4,10 +4,11 @@
             <img src="../assets/img/logo2.png" alt="">
         </div>
         <div class="footer__menu">
-            <a href="/html/Programacion.html" class="footer__menu-link">Programación</a>
-            <a href="/html/informacion.html" class="footer__menu-link">Información</a>
-            <a href="/html/OtrasActividades.html" class="footer__menu-link">Otras Actividades</a>
-            <a href="/html/Contacto.html" class="footer__menu-link">Contacto</a>
+            <RouterLink to="/Programacion" class="nav__link">{{ $t('navigation.program') }}</RouterLink>
+      <RouterLink to="/Informacion" class="nav__link">{{ $t('navigation.information') }}</RouterLink>
+      <RouterLink to="/OtrasActividades" class="nav__link">{{ $t('navigation.otherActivities') }}</RouterLink>
+      <RouterLink to="/Contact" class="nav__link">{{ $t('navigation.contact') }}</RouterLink>
+      <RouterLink to="/Login" class="nav__link">{{ $t('navigation.login') }}</RouterLink>
         </div>
         <div class="footer__networks">
             <img src="../assets/img/tweeter.png" alt="">

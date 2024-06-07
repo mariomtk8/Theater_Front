@@ -1,80 +1,74 @@
 <template>
     <div>
-        <div v-if="store.isLoading">Cargando...</div>
-        <div v-if="store.error">{{ store.error }}</div>
-        <main>
-            <div class="main-block">
-                
-                <h1 class="main-block__title">{{ store.funcion?.nombre }}</h1>
+      <div v-if="store.isLoading">{{ $t('functionDetails.loading') }}</div>
+      <div v-if="store.error">{{ store.error }}</div>
+      <main>
+        <div class="main-block">
+          <h1 class="main-block__title">{{ $t(`functions.${store.funcion?.nombre}.name`) }}</h1>
+        </div>
+        <section class="horarios" v-if="store.funcion && store.funcion.imagenes && store.funcion.imagenes.length > 0">
+          <div class="horarios-img">
+            <img :src="store.funcion.imagenes.split(',')[0]" alt="Imagen destacada de la función" />
+          </div>
+          <div class="horarios-txt">
+            <h2 class="horarios-txt__title">{{ $t('functionDetails.Horarios') }}</h2>
+            <ul class="horarios-txt__list">
+              <li v-for="sesion in store.sesiones" :key="sesion.idSesion" class="horarios-txt__item">
+                {{ sesion.fecha }}
+              </li>
+            </ul>
+          </div>
+        </section>
+        <div class="primera-img" v-if="store.funcion && store.funcion.imagenes && store.funcion.imagenes.length > 1">
+          <img :src="store.funcion.imagenes.split(',')[1]" alt="Segunda imagen destacada de la función" />
+        </div>
+        <article>
+          <div class="button-bought" id="boton-comprar">
+            <RouterLink :to="{ path: '/HorariosCompra/' + store.funcion?.id }" class='show-poster__button'>{{ $t('functionDetails.Comprar') }}</RouterLink>
+          </div>
+        </article>
+        <section>
+          <div class="frame-information">
+            <div class="frame-information__title">
+              <h2>{{ $t('functionDetails.Info') }}</h2>
             </div>
-            <section class="horarios" v-if="store.funcion && store.funcion.imagenes && store.funcion.imagenes.length > 0">
-                <div class="horarios-img">
-                   
-                    <img :src="store.funcion.imagenes.split(',')[0]" alt="Imagen destacada de la función" />
-                </div>
-                <div class="horarios-txt">
-                    <h2 class="horarios-txt__title">Horarios de la función</h2>
-                    <ul class="horarios-txt__list">
-                        
-                        <li v-for="fecha in [store.funcion.fechaUno, store.funcion.fechaDos, store.funcion.fechaTres]"
-                            :key="fecha" class="horarios-txt__item">{{ fecha }}
-                        </li>
-                    </ul>
-                </div>
-            </section>
-            <div class="primera-img" v-if="store.funcion && store.funcion.imagenes && store.funcion.imagenes.length > 1">
-                
-                <img :src="store.funcion.imagenes.split(',')[1]" alt="Segunda imagen destacada de la función" />
+            <div class="frame-information__txt">
+              <p>{{ $t(`functions.${store.funcion?.nombre}.description`) }}</p>
             </div>
-            <article>
-                <div class="button-bought" id="boton-comprar">
-                    
-                    <RouterLink :to="{ path: '/HorariosCompra/' + store.funcion?.id }" class='show-poster__button'>Comprar Entradas</RouterLink>
-                </div>
-            </article>
-            <section>
-                <div class="frame-information">
-                    <div class="frame-information__title">
-                        <h2>Información de la función</h2>
-                    </div>
-                    <div class="frame-information__txt">
-                        
-                        <p>{{ store.funcion?.descripcion }}</p>
-                    </div>
-                </div>
-                <div class="frame-repart">
-                    <div class="frame-repart__title">
-                        <h2>Reparto</h2>
-                    </div>
-                    <div class="frame-repart__txt">
-                        <ul class="frame-repart__list">
-                            
-                            <li v-for="actor in store.funcion?.actores?.split(',')" :key="actor" class="frame-repart__item">{{ actor }}</li>
-                        </ul>
-                    </div>
-                </div>
-            </section>
-        </main>
+          </div>
+          <div class="frame-repart">
+            <div class="frame-repart__title">
+              <h2>{{ $t('functionDetails.Reparto') }}</h2>
+            </div>
+            <div class="frame-repart__txt">
+              <ul class="frame-repart__list">
+                <li v-for="actor in store.funcion?.actores?.split(',')" :key="actor" class="frame-repart__item">{{ actor }}</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
-</template>
-<script setup lang="ts">
-import { onMounted, nextTick } from 'vue';
-import { useRoute } from 'vue-router';
-import { useFetchFuncion } from '../store/InfoFuncion';
-
-const store = useFetchFuncion();
-const route = useRoute();
-
-onMounted(async () => {
+  </template>
+  
+  <script setup lang="ts">
+  import { onMounted, nextTick } from 'vue';
+  import { useRoute } from 'vue-router';
+  import { useFetchFuncion } from '../store/InfoFuncion';
+  
+  const store = useFetchFuncion();
+  const route = useRoute();
+  
+  onMounted(async () => {
     await nextTick(); 
     const idfuncion = route.params.Id as string;
     if (idfuncion) {
-        await store.fetchFunciones(idfuncion);
+      await store.fetchFunciones(idfuncion);
     } else {
-        console.error('ID de función no encontrado en la ruta.');
+      console.error('ID de función no encontrado en la ruta.');
     }
-});
-</script>
+  });
+  </script>
 
 <style scoped>
 body,

@@ -1,53 +1,55 @@
 <template>
-    <section v-if="store.funcions.length > 0" class="performance-block">
-      <div class="performance-block__info">
-        <h2 class="performance-block__title">Recomendación</h2>
-        <RouterLink :to="{ path: '/InfoFuncion/' + store.funcions[currentIndex].id }" class="performance-block__button">Comprar Entradas</RouterLink>
-      </div>
-      <div class="performance-block__content">
-        <div class="image-container">
-          <button @click="anteriorFuncion" class="left-button">Anterior</button>
-          <div class="performance-block__image">
-            <img :src="store.funcions[currentIndex].cartel" alt="Función de Teatro" class="image__img">
-          </div>
-          <button @click="siguienteFuncion" class="right-button">Siguiente</button>
+  <section v-if="store.funcions.length > 0" class="performance-block">
+    <div class="performance-block__info">
+      <h2 class="performance-block__title">{{ $t('performance.available') }}</h2>
+      <RouterLink :to="{ path: '/InfoFuncion/' + store.funcions[currentIndex].id }" class="performance-block__button">{{ $t('performance.buyTickets') }}</RouterLink>
+    </div>
+    <div class="performance-block__content">
+      <div class="image-container">
+        <button @click="anteriorFuncion" class="left-button">{{ $t('performance.previous') }}</button>
+        <div class="performance-block__image">
+          <img :src="store.funcions[currentIndex].cartel" alt="Función de Teatro" class="image__img">
         </div>
+        <button @click="siguienteFuncion" class="right-button">{{ $t('performance.next') }}</button>
       </div>
-      <div class="performance-block__name">
-        <h2 class="performance-block__name-title">{{ store.funcions[currentIndex].nombre }}</h2>
-        <p class="performance-block__name-text">{{ store.funcions[currentIndex].descripcion }}</p>
-      </div>
-    </section>
-  </template>
-  
-  <script setup lang="ts">
-  import { useProgramacion } from '../store/Programacion';
-  import { onMounted, ref } from 'vue'
-  import { RouterLink } from 'vue-router'
-  
-  const store = useProgramacion()
-  const currentIndex = ref(0)
-  
-  onMounted(() => {
-      store.fetchFunciones()
-  })
-  
-  const siguienteFuncion = () => {
-    if (currentIndex.value < store.funcions.length - 1) {
-      currentIndex.value++
-    } else {
-      currentIndex.value = 0
-    }
+    </div>
+    <div class="performance-block__name">
+      <h2 class="performance-block__name-title">{{ $t(`functions.${store.funcions[currentIndex].nombre}.name`) }}</h2>
+      <p class="performance-block__name-text">{{ $t(`functions.${store.funcions[currentIndex].nombre}.description`) }}</p>
+    </div>
+  </section>
+</template>
+
+<script setup lang="ts">
+import { useProgramacion } from '../store/Programacion';
+import { onMounted, ref } from 'vue';
+import { RouterLink } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+
+const store = useProgramacion();
+const currentIndex = ref(0);
+const { locale } = useI18n();
+
+onMounted(() => {
+  store.fetchFunciones();
+});
+
+const siguienteFuncion = () => {
+  if (currentIndex.value < store.funcions.length - 1) {
+    currentIndex.value++;
+  } else {
+    currentIndex.value = 0;
   }
-  
-  const anteriorFuncion = () => {
-    if (currentIndex.value > 0) {
-      currentIndex.value--
-    } else {
-      currentIndex.value = store.funcions.length - 1
-    }
+};
+
+const anteriorFuncion = () => {
+  if (currentIndex.value > 0) {
+    currentIndex.value--;
+  } else {
+    currentIndex.value = store.funcions.length - 1;
   }
-  </script>
+};
+</script>
 
 <style scoped>
 body,

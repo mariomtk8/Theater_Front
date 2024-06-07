@@ -1,7 +1,7 @@
 <template>
   <header class="header">
     <div class="header__logo">
-      <RouterLink to="/Index">
+      <RouterLink to="/">
         <div class="logo">
           <canvas id="logoCanvas" width="200" height="200"></canvas>
           <img src="../assets/img/Careta-amarilla.png" class="mask mask-yellow" />
@@ -10,38 +10,66 @@
       </RouterLink>
     </div>
     <nav class="header__nav">
-      <RouterLink to="/Programacion" class="nav__link">Programación</RouterLink>
-      <RouterLink to="/Informacion" class="nav__link">Información</RouterLink>
-      <RouterLink to="/OtrasActividades" class="nav__link">Otras Actividades</RouterLink>
-      <RouterLink to="/Contact" class="nav__link">Contacto</RouterLink>
+      <RouterLink to="/Programacion" class="nav__link">{{ $t('navigation.program') }}</RouterLink>
+      <RouterLink to="/Informacion" class="nav__link">{{ $t('navigation.information') }}</RouterLink>
+      <RouterLink to="/OtrasActividades" class="nav__link">{{ $t('navigation.otherActivities') }}</RouterLink>
+      <RouterLink to="/Contact" class="nav__link">{{ $t('navigation.contact') }}</RouterLink>
+      <RouterLink to="/Login" class="nav__link">{{ $t('navigation.login') }}</RouterLink>
+      
+      <form class="search-form" @submit.prevent="store.fetchResults">
+        <input type="text" :placeholder="$t('navigation.searchPlaceholder')" class="search-input" v-model="store.searchQuery" @input="store.fetchResults"/>
+        <button type="submit" class="search-button">{{ $t('navigation.searchButton') }}</button>
+      </form>
+      <div class="search-results" v-if="store.results.length > 0">
+        <ul>
+          <li v-for="result in store.results" :key="result.id">
+            <RouterLink :to="{ path: '/InfoFuncion/' + result.id }">
+              {{ result.nombre }}
+            </RouterLink>
+          </li>
+        </ul>
+      </div>
+      <p v-if="store.searchError">{{ $t('navigation.searchError') }}</p>
     </nav>
+    <div class="language-switcher">
+      <button class="Español" @click="changeLanguage('es')">Español</button>
+      <button class="Ingles" @click="changeLanguage('en')">English</button>
+    </div>
   </header>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { RouterLink } from 'vue-router';
+import { useProgramacion } from '../store/Programacion';
+import { useI18n } from 'vue-i18n'; // Importa useI18n correctamente
+
+const store = useProgramacion();
+const { searchQuery, results, noResults, searchError, fetchResults } = useProgramacion();
+const { locale } = useI18n(); // Usa useI18n correctamente
 
 const outerRadius = ref(0); 
 const innerRadius = ref(0); 
-const starRotation = ref(0); 
+const starRotation = ref(0);
+
+const changeLanguage = (lang: string) => {
+  locale.value = lang;
+};
 
 onMounted(() => {
+  store.fetchFunciones();
+  
   const canvas = document.getElementById('logoCanvas') as HTMLCanvasElement;
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
   const drawCircles = () => {
-    
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
     ctx.fillStyle = 'navy';
     ctx.beginPath();
     ctx.arc(100, 100, outerRadius.value, 0, Math.PI * 2);
     ctx.fill();
-
-  
     ctx.fillStyle = '#1E3367';
     ctx.beginPath();
     ctx.arc(100, 100, innerRadius.value, 0, Math.PI * 2);
@@ -49,10 +77,8 @@ onMounted(() => {
   };
 
   const animateCircles = () => {
-    
     outerRadius.value += (50 - outerRadius.value) * 0.05;
     innerRadius.value += (40 - innerRadius.value) * 0.05;
-
     drawCircles(); 
     requestAnimationFrame(animateCircles); 
   };
@@ -68,7 +94,6 @@ onMounted(() => {
       y = cy + Math.sin(rot + rotation) * outerRadius;
       ctx.lineTo(x, y);
       rotation += step;
-
       x = cx + Math.cos(rot + rotation) * innerRadius;
       y = cy + Math.sin(rot + rotation) * innerRadius;
       ctx.lineTo(x, y);
@@ -111,6 +136,65 @@ body {
     line-height: 1.6;
     overflow: auto;
 }
+.search-form {
+    position: relative; /* Posición relativa para el despliegue absoluto de resultados */
+    display: flex;
+    align-items: center;
+    width: 50%;
+}
+
+.search-input {
+    width: 50%; /* Aprovecha todo el espacio disponible */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-right: 10px;
+}
+
+.search-button {
+    padding: 10px 15px;
+    background-color: #1E3367;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.search-button:hover {
+    background-color: #1E3367;
+}
+
+.search-results {
+    position: absolute;
+    width: 30%;
+    margin-top: 7vh;
+    margin-left: 50vh;
+    background: white;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    z-index: 10;
+}
+
+.search-results ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.search-results li {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.search-results li:hover {
+    background-color: #f7f7f7;
+}
+
+.noResults, .searchError {
+    color: #cc0000;
+    padding: 10px;
+}
 
 .header {
     display: flex;
@@ -126,6 +210,29 @@ body {
     flex: 1;
     text-align: center;
 }
+.language-switcher {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    }
+    .Español{
+      padding: 10px 15px;
+    background-color: #1E3367;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+   }
+    .Ingles{
+      padding: 10px 15px;
+    background-color: #1E3367;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    }
 
 .logo__image {
     max-width: 140px;
@@ -155,7 +262,7 @@ body {
 }
 
   .header__nav {
-    flex: 2.2;
+    flex: 2.;
     display: flex;
     text-align: left;
     justify-content: left;
@@ -179,6 +286,29 @@ body {
     .header__logo {
       margin-left: 5vh;
     }
+    .language-switcher {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    }
+    .Español{
+      padding: 10px 15px;
+    background-color: #1E3367;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+   }
+    .Ingles{
+      padding: 10px 15px;
+    background-color: #1E3367;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    }
   
     .header__nav {
       flex-direction: column;
@@ -186,5 +316,15 @@ body {
       text-align: center;
       margin-top: 10px;
     }
+    .search-form {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .search-input, .search-button {
+    width: 90%; /* Adjust based on your layout needs */
+    margin: 5px 0; /* Spacing for mobile view */
+  }
 }
 </style>

@@ -2,18 +2,20 @@ import { defineStore } from 'pinia';
 
 export const useLoginStore = defineStore('login', {
   state: () => ({
-    user: null,
-    admin: null,
+    user: JSON.parse(localStorage.getItem('user') || 'null'),
+    admin: JSON.parse(localStorage.getItem('admin') || 'null'),
   }),
   actions: {
     async loginUser(username: string, password: string) {
       try {
-        const response = await fetch(`http://a3407cd44c6db427eb6fd4e572e5b3ab-889807298.us-east-1.elb.amazonaws.com/Usuario/${username}/Contrasena/${password}`);
+        const response = await fetch(`/api/Usuario/${username}/Contrasena/${password}`);
         if (!response.ok) {
           throw new Error('Network response was not ok.');
         }
         const data = await response.json();
         this.user = data; 
+        localStorage.setItem('user', JSON.stringify(data));
+        localStorage.removeItem('admin'); 
         return data;
       } catch (error) {
         console.error('Error logging in user', error);
@@ -22,17 +24,25 @@ export const useLoginStore = defineStore('login', {
     },
     async loginAdmin(username: string, password: string) {
       try {
-        const response = await fetch(`http://a3407cd44c6db427eb6fd4e572e5b3ab-889807298.us-east-1.elb.amazonaws.com/Admin/${username}/Contrasena/${password}`);
+        const response = await fetch(`/api/Admin/${username}/Contrasena/${password}`);
         if (!response.ok) {
           throw new Error('Network response was not ok.');
         }
         const data = await response.json();
         this.admin = data; 
+        localStorage.setItem('admin', JSON.stringify(data));
+        localStorage.removeItem('user');
         return data;
       } catch (error) {
         console.error('Error logging in admin', error);
         throw error;
       }
     },
+    logout() {
+      this.user = null;
+      this.admin = null;
+      localStorage.removeItem('user');
+      localStorage.removeItem('admin');
+    }
   },
 });

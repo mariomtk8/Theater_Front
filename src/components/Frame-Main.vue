@@ -6,37 +6,32 @@
     <div class="frame-function__title">
       <h2>{{ store.funcion.nombre }}</h2>
     </div>
-    <div class="frame-function__date">
-      <p class="fechas" v-if="idSesion === '3'">
-        Fecha: {{ store.funcion.fechaTres }}
-      </p>
-      <p class="fechas" v-if="idSesion === '2'">
-        Fecha: {{ store.funcion.fechaDos }}
-      </p>
-      <p class="fechas" v-if="idSesion === '1'">
-        Fecha: {{ store.funcion.fechaUno }}
+    <div class="frame-function__date" v-if="store.sesion">
+      <p class="fechas">
+        {{ $t('CompraEntradas.Fecha') }} {{ store.sesion.fecha }}
       </p>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed,onMounted, nextTick } from 'vue';
+import { computed, onMounted, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import { useFetchFuncion } from '../store/InfoFuncion';
 
 const store = useFetchFuncion();
 const route = useRoute();
-  const idSesion = computed(() => route.query.idSesion as string);
+const idSesion = computed(() => route.query.idSesion as string);
 
 onMounted(async () => {
-    await nextTick();
-    const idfuncion = route.params.Id as string;
-    if (idfuncion) {
-        await store.fetchFunciones(idfuncion);
-    } else {
-        console.error('ID de función no encontrado en la ruta.');
-    }
+  await nextTick();
+  const idfuncion = route.params.Id as string;
+  if (idfuncion && idSesion.value) {
+    await store.fetchFunciones(idfuncion);
+    await store.fetchSesionById(idfuncion, idSesion.value);
+  } else {
+    console.error('ID de función o de sesión no encontrado en la ruta.');
+  }
 });
 </script>
 

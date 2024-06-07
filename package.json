@@ -11,14 +11,17 @@
     "type-check": "vue-tsc --build --force"
   },
   "dependencies": {
+    "jspdf": "^2.5.1",
     "pinia": "^2.1.7",
     "sweetalert2": "^11.10.6",
     "vue": "^3.4.15",
+    "vue-i18n": "^10.0.0-beta.1",
     "vue-router": "^4.3.0"
   },
   "devDependencies": {
     "@tsconfig/node20": "^20.1.2",
     "@types/node": "^20.11.10",
+    "@types/vue-i18n": "^7.0.0",
     "@vitejs/plugin-vue": "^5.0.3",
     "@vue/tsconfig": "^0.5.1",
     "npm-run-all2": "^6.1.1",

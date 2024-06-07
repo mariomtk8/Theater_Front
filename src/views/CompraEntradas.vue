@@ -2,7 +2,7 @@
   <main>
     <article class="article-block">
       <div class="main-block">
-        <h1>Compra de entradas</h1>
+        <h1>{{ $t('CompraEntradas.title') }}</h1>
       </div>
       <FrameMain></FrameMain>
     </article>

@@ -1,31 +1,30 @@
 <template>
     <section class="poster-container">
-                <div v-for="funcion in store.funcions" :key="funcion.id" class='show-poster'>
-                    <div class='show-poster__image'>
-                        <img :src="funcion.imagenes ? funcion.imagenes.split(',')[0] : 'imagen-predeterminada.jpg'"
-                            alt="Imagen de la funcion" />
-                    </div>
-                    <div class='show-poster__details'>
-                        <h3 class='show-poster__details__title'>{{ funcion.nombre }}</h3>
-                    </div>
-                    <div class="show-poster__button">
-                        <RouterLink :key="funcion.id" :to="{ path: '/InfoFuncion/' + funcion.id }" class='show-poster__button_ref'>Comprar
-                            Entradas</RouterLink>
-                    </div>
-                </div>
-            </section>
-</template>
-
-<script setup lang="ts">
-import { useProgramacion } from '../store/Programacion';
-import { onMounted } from 'vue'
-import { RouterLink } from 'vue-router'
-const store = useProgramacion()
-
-onMounted(() => {
-    store.fetchFunciones()
-})
-</script>
+      <div v-for="funcion in store.funcions" :key="funcion.id" class="show-poster">
+        <div class="show-poster__image">
+          <img :src="funcion.imagenes ? funcion.imagenes.split(',')[0] : 'imagen-predeterminada.jpg'" alt="Imagen de la funcion" />
+        </div>
+        <div class="show-poster__details">
+          <h3 class="show-poster__details__title">{{ $t(`functions.${funcion.nombre}.name`) }}</h3>
+        </div>
+        <div class="show-poster__button">
+          <RouterLink :key="funcion.id" :to="{ path: '/InfoFuncion/' + funcion.id }" class="show-poster__button_ref">{{ $t('showPoster.buyTickets') }}</RouterLink>
+        </div>
+      </div>
+    </section>
+  </template>
+  
+  <script setup lang="ts">
+  import { useProgramacion } from '../store/Programacion';
+  import { onMounted } from 'vue';
+  import { RouterLink } from 'vue-router';
+  
+  const store = useProgramacion();
+  
+  onMounted(() => {
+    store.fetchFunciones();
+  });
+  </script>
 
 <style scoped>
     .poster-container {
